@@ -158,8 +158,8 @@ export function createLobby(callbacks) {
   const roster = append(
     el('section', 'lousa'),
     append(el('div', 'lousa__cab lousa__cab--sala'), el('h2', '', 'Na mesa'), append(chairsBox, chairsText)),
-    list,
     target,
+    list,
   );
 
   const hintStrong = el('b');

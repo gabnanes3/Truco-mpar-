@@ -432,7 +432,7 @@ function roundCells(hand, live, nameOf) {
  * @param {RoomSnapshot['connection']} connection
  * @returns {BannerModel | null}
  */
-function banner(connection) {
+export function banner(connection) {
   if (connection === 'reconnecting') return { tone: 'alerta', icon: 'sem-sinal', text: 'Caiu a conexão. Segura aí que sua cadeira tá guardada.' };
   if (connection === 'host-away') return { tone: 'alerta', icon: 'sem-sinal', text: 'Quem abriu a mesa sumiu. Esperando voltar…' };
   if (connection === 'connecting') return { tone: 'calmo', icon: 'sem-sinal', text: 'Conectando com a mesa…' };

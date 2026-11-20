@@ -15,7 +15,7 @@ const LADDER = [1, 3, 6, 9, 12];
  * @param {number} count
  * @returns {{ d: string, width: number }}
  */
-function tally(count) {
+export function tally(count) {
   /** @param {number} n */
   const wobble = (n) => ((Math.sin(n * 12.9898) * 43758.5453) % 1) * 0.9;
   let d = '';

@@ -1,10 +1,12 @@
 // What the house has to say outside the table: dialogs (how to play, confirmations) and the full-screen
 // notices (looking for a room, and every way a room can be lost).
 
-import { append, button, el } from './dom.js';
+import { append, button, el, setText } from './dom.js';
 import { createCardBack } from './carta.js';
+import { banner } from './modelo.js';
 
 /** @typedef {import('../net/types.js').RoomError} RoomError */
+/** @typedef {import('../net/types.js').RoomSnapshot} RoomSnapshot */
 /**
  * @typedef {Object} DialogAction
  * @property {string} label
@@ -132,8 +134,18 @@ export function openHowTo() {
 }
 
 /**
+ * The sentence shown outside the table while the connection is not fine (the table has its own banner).
+ * @param {RoomSnapshot} snapshot
+ * @returns {string | null} null when there is nothing to say
+ */
+export function connectionText(snapshot) {
+  return banner(snapshot.connection)?.text ?? null;
+}
+
+/**
  * A whole screen for one message: a card face down, a title, one or two sentences and what to do next.
- * @param {{ title: string, text: string, code?: string, actions: NoticeAction[] }} options
+ * @param {{ title: string, text: string, code?: string, waiting?: boolean, actions: NoticeAction[] }} options
+ *   `waiting`: something is still going on (the card keeps moving)
  * @returns {HTMLElement}
  */
 export function createNotice(options) {
@@ -154,7 +166,33 @@ export function createNotice(options) {
   const main = append(el('main', 'aviso'), card, title, text);
   if (options.code) main.appendChild(append(el('p', 'aviso__codigo'), el('span', 'rot', 'mesa'), el('b', '', options.code)));
   main.setAttribute('role', 'status');
+  if (options.waiting) main.dataset.espera = '';
   return append(el('div', 'app app--aviso'), el('div', 'luz'), brand, main, actions);
+}
+
+/**
+ * The screen shown while a room is being opened or looked for.
+ * @param {{ code: string | null, onCancel: () => void }} options
+ * @returns {{ el: HTMLElement, update: (snapshot: RoomSnapshot) => void }}
+ */
+export function createWaitingNotice(options) {
+  const creating = options.code === null;
+  const root = createNotice({
+    title: creating ? 'Abrindo a mesa…' : 'Procurando a mesa…',
+    text: creating ? 'Só um instante, já sai o código pra chamar a turma.' : 'Só um instante, puxando uma cadeira pra você.',
+    code: options.code ?? undefined,
+    waiting: true,
+    actions: [{ label: 'Voltar pro início', kind: 'texto', onClick: options.onCancel }],
+  });
+  const text = /** @type {HTMLElement} */ (root.querySelector('.aviso__texto'));
+  const calm = text.textContent ?? '';
+  return {
+    el: root,
+    update(snapshot) {
+      const away = snapshot.connection === 'reconnecting' || snapshot.connection === 'host-away';
+      setText(text, away ? 'Quem abriu a mesa não respondeu ainda. Continuo tentando: sua cadeira tá guardada.' : calm);
+    },
+  };
 }
 
 /** What to say for each way a room is lost: what happened, then what to do. Never blames anyone. */

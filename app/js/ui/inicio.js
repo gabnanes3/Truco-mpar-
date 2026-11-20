@@ -52,7 +52,7 @@ export function createHome(options) {
   nameInput.type = 'text';
   nameInput.name = 'nome';
   nameInput.maxLength = 14;
-  nameInput.autocomplete = 'nickname';
+  nameInput.setAttribute('autocomplete', 'nickname');
   nameInput.spellcheck = false;
   nameInput.enterKeyHint = 'go';
   nameInput.setAttribute('autocapitalize', 'words');

@@ -1,0 +1,373 @@
+/* ==========================================================================
+   Telas fora da mesa: início, sala de espera, fim de partida, avisos de tela
+   cheia e diálogos. Depende de tokens.css, base.css e cartas.css.
+   ========================================================================== */
+
+/* Estas telas rolam quando o conteúdo passa da altura; "clip" corta a lâmpada sem prender o rodapé fixo. */
+.app--inicio, .app--sala, .app--fim, .app--aviso { overflow: clip; }
+.app--inicio .luz, .app--fim .luz, .app--aviso .luz {
+  background: radial-gradient(closest-side, rgba(244, 180, 31, 0.24), rgba(244, 180, 31, 0.07) 55%, rgba(244, 180, 31, 0) 100%);
+}
+
+/* ---------- botões e campos ---------- */
+.btn--linha { flex-direction: row; gap: 8px; min-height: 48px; padding: 0 12px 2px; border-radius: 10px; }
+.btn--linha .btn__txt { font: 700 14.5px/1 var(--f-ui); font-stretch: 88%; white-space: nowrap; }
+.btn--linha svg { width: 18px; height: 18px; flex: none; }
+.btn--texto { background: none; box-shadow: none; color: var(--giz-2); min-height: 44px; }
+.btn--texto:active:not(:disabled) { box-shadow: none; transform: translateY(1px); }
+.btn--texto .btn__txt {
+  font: 600 14.5px/1 var(--f-ui);
+  font-stretch: 92%;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--giz-3);
+}
+
+.campo { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+.campo__caixa {
+  width: 100%;
+  min-width: 0;
+  height: 52px;
+  padding: 0 14px;
+  border: 0;
+  outline: 0;
+  border-radius: var(--r-campo);
+  background: var(--breu-2);
+  box-shadow: inset 0 0 0 1.5px var(--giz-3);
+  font: 600 17px/1 var(--f-ui);
+  color: var(--giz);
+  caret-color: var(--gema);
+  transition: box-shadow var(--t-rapido) var(--e-padrao);
+}
+.campo__caixa:focus { box-shadow: inset 0 0 0 2px var(--gema); }
+.campo__caixa--codigo { font: 800 20px/1 var(--f-letreiro); letter-spacing: 0.2em; text-transform: uppercase; }
+.campo__caixa::placeholder { color: var(--giz-3); opacity: 0.75; }
+.campo__erro { margin: -4px 2px 0; font: 600 13px/1.3 var(--f-ui); font-stretch: 92%; color: var(--pimenta); }
+
+/* ==========================================================================
+   Início
+   ========================================================================== */
+.inicio { position: relative; flex: 1; display: flex; flex-direction: column; padding: 0 24px; }
+.inicio__heroi { position: relative; flex: none; height: 98px; margin-top: 22px; }
+.inicio__heroi .carta { --w: 56px; position: absolute; left: 50%; top: 12px; margin-left: -28px; box-shadow: var(--sombra-carta-alta); }
+.inicio__heroi .carta:nth-child(1) { transform: translate(-50px, 7px) rotate(-12deg); }
+.inicio__heroi .carta:nth-child(2) { transform: translateY(-5px); }
+.inicio__heroi .carta:nth-child(3) { transform: translate(50px, 7px) rotate(12deg); }
+.inicio h1 { flex: none; }
+.marca { display: block; width: 222px; height: auto; margin: 16px auto 0; }
+.inicio__lema { margin-top: 12px; text-align: center; font: 500 15px/1.4 var(--f-ui); font-stretch: 94%; color: var(--giz-2); }
+.inicio__lema b { color: var(--giz); font-weight: 700; }
+.inicio__form { margin-top: 20px; display: flex; flex-direction: column; gap: 13px; }
+.inicio__voltar { justify-content: center; }
+.ou { display: flex; align-items: center; gap: 12px; margin: 2px 0; }
+.ou::before, .ou::after { content: ""; flex: 1; height: 1px; background: var(--breu-4); }
+.entrar { display: grid; grid-template-columns: minmax(0, 1fr) 104px; gap: 10px; align-items: end; }
+.entrar .btn { min-height: 52px; }
+.entrar .btn__txt { font-size: 18px; }
+.convite {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 14px;
+  border-radius: var(--r-campo);
+  background: var(--anil);
+  box-shadow: inset 0 0 0 1px rgba(247, 239, 221, 0.42), var(--sombra-chapa);
+}
+.convite .rot { color: var(--anil-luz); }
+.convite__codigo { font: 800 22px/1 var(--f-letreiro); letter-spacing: 0.14em; color: var(--creme); }
+.inicio__rodape { margin: auto 0 8px; padding-top: 10px; text-align: center; font: 500 12px/1.3 var(--f-ui); font-stretch: 90%; color: var(--giz-3); }
+.inicio__rodape .btn { width: auto; margin: 0 auto; }
+.rodape-ladrilho {
+  flex: none;
+  height: calc(22px + env(safe-area-inset-bottom));
+  background: url("../assets/img/ladrilho.svg") center top / 22px 22px repeat-x, var(--anil);
+  box-shadow: inset 0 1px 0 rgba(247, 239, 221, 0.25);
+}
+@media (max-height: 680px) {
+  .inicio__heroi { height: 80px; margin-top: 12px; }
+  .inicio__heroi .carta { --w: 46px; margin-left: -23px; top: 10px; }
+  .inicio__heroi .carta:nth-child(1) { transform: translate(-41px, 6px) rotate(-12deg); }
+  .inicio__heroi .carta:nth-child(3) { transform: translate(41px, 6px) rotate(12deg); }
+  .marca { width: 196px; margin-top: 10px; }
+  .inicio__lema { margin-top: 8px; font-size: 14px; }
+  .inicio__form { margin-top: 14px; gap: 11px; }
+}
+@media (max-width: 339px) {
+  .inicio { padding: 0 16px; }
+  .entrar { grid-template-columns: minmax(0, 1fr) 92px; }
+  .campo__caixa--codigo { letter-spacing: 0.12em; }
+}
+
+/* ==========================================================================
+   Barra do topo das telas de sala e a faixa de problema de conexão
+   ========================================================================== */
+.barra { position: relative; z-index: 2; flex: none; height: 48px; display: flex; align-items: center; gap: 2px; padding: 0 4px; }
+.barra__titulo { flex: 1; min-width: 0; margin-left: 6px; font: 700 15px/1 var(--f-ui); font-stretch: 88%; color: var(--giz); }
+.faixa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: var(--breu-3);
+  box-shadow: inset 0 0 0 1px var(--pimenta);
+  font: 600 13px/1.25 var(--f-ui);
+  font-stretch: 90%;
+  color: var(--giz);
+  text-align: center;
+}
+
+/* ==========================================================================
+   Sala de espera
+   ========================================================================== */
+.sala { position: relative; flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 0 16px; }
+.codigo { display: flex; flex-direction: column; align-items: center; gap: 9px; }
+.codigo__chapas { display: flex; gap: 5px; }
+.codigo__chapas span {
+  position: relative;
+  width: 46px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  background: var(--anil);
+  color: var(--creme);
+  font: 800 32px/1 var(--f-letreiro);
+  box-shadow: var(--sombra-chapa);
+}
+.codigo__chapas span::after { content: ""; position: absolute; inset: 2.5px; border: 1px solid rgba(247, 239, 221, 0.42); border-radius: 5px; }
+.sala__acoes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.cadeiras { display: inline-flex; align-items: center; gap: 7px; }
+.cadeiras svg { width: 30px; height: 30px; }
+.cadeiras .cheia { fill: var(--gema); }
+.cadeiras .vaga-c { fill: none; stroke: var(--giz-2); stroke-width: 1.2; }
+.cadeiras .tampo { fill: var(--barro); }
+.lousa__cab--sala { align-items: center; padding-top: 9px; padding-bottom: 7px; }
+
+.lista > li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 14px;
+  border-top: 1px solid rgba(236, 229, 214, 0.09);
+  font: 600 15px/1.2 var(--f-ui);
+  font-stretch: 92%;
+}
+.lista__n { flex: none; width: 18px; font: 800 16px/1 var(--f-letreiro); color: var(--giz-3); text-align: center; }
+.lista__nome { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 6px; color: var(--giz); }
+.lista__txt { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lista__nome small { flex: none; font: 600 12px/1 var(--f-ui); font-stretch: 86%; color: var(--giz-2); }
+.lista__nome small:empty { display: none; }
+.lista__estado { flex: none; }
+.selo-dono {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: 11px;
+  background: var(--anil);
+  color: var(--creme);
+  font: 700 11px/1 var(--f-ui);
+  font-stretch: 80%;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  white-space: nowrap;
+}
+.pronto { display: inline-flex; align-items: center; gap: 4px; font: 600 12px/1 var(--f-ui); font-stretch: 86%; color: var(--giz-2); white-space: nowrap; }
+.pronto svg { width: 13px; height: 13px; color: var(--giz); stroke-width: 3; }
+.pronto[data-tipo="caiu"] { color: var(--pimenta); }
+.pronto[data-tipo="caiu"] svg { color: var(--pimenta); stroke-width: 2.3; }
+.lista__tirar { margin-right: -12px; margin-left: -6px; color: var(--giz-3); }
+.lista__tirar svg { width: 18px; height: 18px; }
+.lista > li.vago { color: var(--giz-3); font-weight: 500; font-size: 13.5px; }
+.lista > li.vago .lista__nome { color: var(--giz-3); }
+.lista > li.vago .lista__n { width: 18px; height: 18px; border: 1.5px dashed var(--giz-3); border-radius: 50%; }
+.lista > li.vago .pronto { color: var(--giz-3); }
+
+/* até quantos pontos: três fichas de esmalte; só o dono da mesa mexe */
+.alvo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 60px;
+  padding: 8px 14px;
+  border-top: 1px solid rgba(236, 229, 214, 0.09);
+}
+.alvo__rot, .alvo__un {
+  font: 700 11px/1 var(--f-ui);
+  font-stretch: 82%;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--giz-2);
+  white-space: nowrap;
+}
+.alvo__un { display: inline-flex; align-items: center; gap: 6px; }
+.alvo__un svg { width: 13px; height: 13px; color: var(--giz-3); }
+.alvo__ops { display: flex; gap: 8px; margin: 0 auto; }
+.alvo__op {
+  width: 50px;
+  height: 44px;
+  border-radius: 9px;
+  box-shadow: inset 0 0 0 1.5px var(--breu-4);
+  font: 800 22px/1 var(--f-letreiro);
+  color: var(--giz-2);
+  transition: transform var(--t-rapido) var(--e-padrao), background-color var(--t-rapido) var(--e-padrao);
+}
+.alvo__op[aria-checked="true"] { background: var(--gema); color: var(--tinta); box-shadow: 0 3px 0 var(--gema-2); transform: translateY(-1px); }
+.alvo__op:active:not(:disabled):not([aria-checked="true"]) { transform: translateY(2px); }
+.alvo[data-fixo] .alvo__op:not([aria-checked="true"]) { color: var(--giz-3); box-shadow: inset 0 0 0 1px var(--breu-3); opacity: 0.7; }
+
+.aviso-impar { display: flex; align-items: center; gap: 10px; padding: 0 4px; font: 500 13px/1.35 var(--f-ui); font-stretch: 92%; color: var(--giz-2); }
+.aviso-impar b { color: var(--gema); font-weight: 700; }
+.aviso-impar svg { width: 22px; height: 22px; flex: none; fill: var(--gema); }
+
+/* o botão de começar fica sempre à mão, mesmo com a lista comprida */
+.sala__fim, .fim__acoes {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  margin: auto -16px 0;
+  padding: 18px 16px max(16px, env(safe-area-inset-bottom));
+  background: linear-gradient(rgba(19, 14, 12, 0), var(--breu) 18px);
+}
+.sala__espera {
+  min-height: 56px;
+  display: grid;
+  place-items: center;
+  padding: 8px 14px;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 1.5px var(--breu-4);
+  font: 600 14.5px/1.3 var(--f-ui);
+  font-stretch: 92%;
+  color: var(--giz-2);
+  text-align: center;
+}
+@media (max-width: 339px) {
+  .sala { padding: 0 10px; }
+  .sala__fim, .fim__acoes { margin-left: -10px; margin-right: -10px; padding-left: 10px; padding-right: 10px; }
+  .codigo__chapas span { width: 42px; height: 50px; font-size: 29px; }
+  .btn--linha { gap: 6px; padding: 0 6px 2px; }
+  .btn--linha .btn__txt { font-size: 13.5px; font-stretch: 82%; }
+  .alvo { gap: 6px; padding: 8px 10px; }
+  .alvo__op { width: 44px; }
+  .alvo__ops { gap: 6px; }
+}
+
+/* ==========================================================================
+   Fim de partida
+   ========================================================================== */
+.fim { position: relative; flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 18px 16px 0; }
+.fim__cab { display: flex; align-items: center; gap: 14px; padding: 0 2px; }
+.fim__cab .vale { --tampa: 76px; position: relative; left: auto; top: auto; flex: none; width: 76px; height: 76px; display: grid; place-items: center; color: var(--tinta); transform: rotate(-8deg); }
+.fim__cab .vale__n { font-size: 34px; }
+.fim__txt { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.fim__titulo {
+  font: 900 italic 37px/0.95 var(--f-letreiro);
+  color: var(--gema);
+  text-shadow: 2px 3px 0 var(--carmim);
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+  padding-right: 4px;
+}
+.fim__titulo span { display: block; }
+.fim__sub { font: 500 13px/1.3 var(--f-ui); font-stretch: 92%; color: var(--giz-2); }
+.final > li {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto 30px;
+  align-items: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 0 14px 0 12px;
+  border-top: 1px solid rgba(236, 229, 214, 0.09);
+}
+.final > li:first-child { border-top: 0; }
+.final__pos { font: 800 14px/1 var(--f-letreiro); color: var(--giz-3); }
+.final__nome { min-width: 0; display: flex; align-items: baseline; gap: 5px; font: 600 15px/1.2 var(--f-ui); font-stretch: 88%; color: var(--giz); }
+.final__nome span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.final__nome small { flex: none; font: 600 11.5px/1 var(--f-ui); font-stretch: 84%; color: var(--giz-2); }
+.final__nome small:empty { display: none; }
+.final__riscos { display: flex; align-items: center; justify-content: flex-end; min-width: 0; }
+.final__riscos .riscos { height: 20px; max-width: 100%; }
+.final__n { font: 800 21px/1 var(--f-letreiro); color: var(--giz); text-align: right; }
+.final > li[data-campeao] .final__nome, .final > li[data-campeao] .final__n, .final > li[data-campeao] .final__pos { color: var(--gema); }
+.final > li[data-campeao] .riscos { stroke: var(--gema); opacity: 1; }
+.final > li[data-zerado] .final__n { color: var(--giz-3); }
+.final > li[data-saiu] .final__nome span { text-decoration: line-through; text-decoration-color: var(--giz-3); color: var(--giz-2); }
+.fim__acoes { display: flex; flex-direction: column; gap: 6px; padding-top: 18px; padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+.app--fim .fim__cab { animation: tela-assentar 260ms var(--e-padrao) both; }
+.app--fim .fim__cab .vale { animation: carimbar-fim 360ms var(--e-bater) 140ms both; }
+@keyframes carimbar-fim {
+  from { opacity: 0; transform: rotate(-24deg) scale(1.5); }
+  to { opacity: 1; transform: rotate(-8deg) scale(1); }
+}
+
+/* ==========================================================================
+   Aviso de tela cheia: procurando a mesa, e todo jeito de perder uma
+   ========================================================================== */
+.app--aviso { align-items: center; padding-left: max(24px, env(safe-area-inset-left)); padding-right: max(24px, env(safe-area-inset-right)); }
+.aviso__marca { position: relative; flex: none; width: 150px; height: auto; margin-top: 18px; }
+.aviso { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 20px 0; text-align: center; }
+.aviso__carta { --w: 64px; margin-bottom: 14px; transform: rotate(-7deg); box-shadow: var(--sombra-carta-alta); }
+.aviso[data-espera] .aviso__carta { animation: embaralhar 1400ms var(--e-padrao) infinite; }
+@keyframes embaralhar {
+  0%, 100% { transform: rotate(-7deg); }
+  50% { transform: rotate(7deg) translateY(-6px); }
+}
+.aviso__titulo { font: var(--t-titulo); font-size: 31px; color: var(--giz); max-width: 300px; }
+.aviso__texto { max-width: 300px; font: 500 15px/1.45 var(--f-ui); font-stretch: 94%; color: var(--giz-2); }
+.aviso__codigo { display: flex; align-items: baseline; gap: 8px; margin-top: 4px; }
+.aviso__codigo b { font: 800 20px/1 var(--f-letreiro); letter-spacing: 0.14em; color: var(--giz); }
+.aviso__acoes { position: relative; flex: none; align-self: stretch; display: flex; flex-direction: column; gap: 6px; padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+
+/* ==========================================================================
+   Diálogos: como se joga, confirmações
+   ========================================================================== */
+.veu {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+  background: rgba(10, 7, 6, 0.78);
+  animation: tela-surgir 140ms var(--e-padrao) both;
+}
+.dialogo {
+  width: 100%;
+  max-width: 420px;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: inset 0 0 0 1px rgba(236, 229, 214, 0.16), 0 14px 30px rgba(0, 0, 0, 0.5);
+  animation: tela-assentar 200ms var(--e-padrao) both;
+}
+.dialogo__titulo { flex: none; padding: 18px 18px 10px; font: var(--t-subtitulo); font-size: 25px; color: var(--giz); }
+.dialogo__corpo { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0 18px 4px; font: 500 15px/1.45 var(--f-ui); font-stretch: 94%; color: var(--giz-2); }
+.dialogo__acoes { flex: none; display: flex; flex-direction: column; gap: 6px; padding: 14px 18px 14px; }
+.regras { margin: 0; }
+.regras dt { margin-top: 14px; font: 900 italic 17px/1 var(--f-letreiro); color: var(--gema); }
+.regras dt:first-child { margin-top: 4px; }
+.regras dd { margin: 5px 0 0; font: 500 14px/1.45 var(--f-ui); font-stretch: 94%; color: var(--giz); }
+@keyframes tela-surgir { from { opacity: 0; } to { opacity: 1; } }
+@keyframes tela-assentar {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ==========================================================================
+   Telas largas: a mesma coluna, com mais ar e o ladrilho de ponta a ponta
+   ========================================================================== */
+@media (min-width: 700px) and (min-height: 700px) {
+  .app--inicio .inicio, .app--sala .sala, .app--fim .fim { flex: none; }
+  .app--inicio, .app--sala, .app--fim { justify-content: center; padding-bottom: 40px; }
+  .app--sala .sala__fim, .app--fim .fim__acoes { position: static; margin-top: 18px; padding-top: 0; background: none; }
+  .inicio__rodape { margin-top: 26px; }
+  .rodape-ladrilho { position: fixed; left: 0; right: 0; bottom: 0; }
+  .luz { width: 760px; height: 560px; top: -180px; }
+}

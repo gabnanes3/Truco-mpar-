@@ -1,0 +1,15 @@
+{
+  "name": "Truco Ímpar",
+  "short_name": "Truco Ímpar",
+  "description": "Truco paulista online, cada um por si. Sem dupla, sem dó.",
+  "lang": "pt-BR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#130e0c",
+  "theme_color": "#130e0c",
+  "icons": [
+    { "src": "assets/img/icone.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

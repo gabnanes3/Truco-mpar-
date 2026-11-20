@@ -5,9 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#130e0c">
 <meta name="color-scheme" content="dark">
-<title>Truco Ímpar</title>
-<meta name="description" content="Truco paulista online, cada um por si. Sem dupla, sem dó.">
+<title>Truco Ímpar — truco paulista online, cada um por si</title>
+<meta name="description" content="Truco paulista online pra 3, 5 ou 7 jogadores (ou 2, 4, 6): cada um por si, sem dupla, sem dó. Sem cadastro: abre a mesa e manda o link no grupo.">
+<meta name="application-name" content="Truco Ímpar">
+<meta name="apple-mobile-web-app-title" content="Truco Ímpar">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Truco Ímpar">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:title" content="Truco Ímpar — sem dupla, sem dó">
+<meta property="og:description" content="Truco paulista online, cada um por si. Abre a mesa, manda o link no grupo e joga com 3, 5 ou 7.">
+<meta property="og:url" content="https://gabnanes3.github.io/Truco-mpar-/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Truco Ímpar — sem dupla, sem dó">
+<meta name="twitter:description" content="Truco paulista online, cada um por si. Abre a mesa, manda o link no grupo e joga com 3, 5 ou 7.">
 <link rel="icon" href="assets/img/icone.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="preload" href="assets/fonts/sansita-latin-900-italic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/archivo-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/tokens.css">
@@ -16,11 +32,14 @@
 <link rel="stylesheet" href="css/mesa.css">
 <link rel="stylesheet" href="css/sobreposicoes.css">
 <link rel="stylesheet" href="css/paineis.css">
+<link rel="stylesheet" href="css/telas.css">
 <style>
   .abertura { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px; text-align: center; }
   .abertura img { width: min(222px, 62vw); height: auto; }
   .abertura p { font: 500 15px/1.4 var(--f-ui); font-stretch: 94%; color: var(--giz-2); }
 </style>
+<script defer src="vendor/peerjs.min.js"></script>
+<script type="module" src="js/app.js"></script>
 </head>
 <body>
 <div id="app">
@@ -29,6 +48,7 @@
     <div class="abertura">
       <img src="assets/img/marca.svg" alt="Truco Ímpar" width="334" height="176">
       <p>Sem dupla, sem dó.</p>
+      <noscript><p>O jogo precisa de JavaScript ligado no navegador.</p></noscript>
     </div>
   </main>
 </div>
