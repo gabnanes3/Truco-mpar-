@@ -17,7 +17,7 @@ import { seatSpots } from './layout.js';
 import { createMyArea } from './minha-area.js';
 import { eventNews, tableModel } from './modelo.js';
 import { createPanels } from './paineis.js';
-import { createRaisePrompt } from './pedido.js';
+import { createRaiseSign } from './pedido.js';
 import { createPlate } from './placa.js';
 import { createSlot } from './vaga.js';
 
@@ -78,17 +78,18 @@ export function createTable(container, callbacks, options = {}) {
   const mySlot = createSlot('vaga--minha');
   mySlot.el.style.setProperty('--de-x', '0px');
   mySlot.el.style.setProperty('--de-y', '34px');
-  const mesa = append(el('div', 'mesa'), el('div', 'mesa__tampo'), centre.el, mySlot.el);
-  const prompt = createRaisePrompt((accept) => send(() => callbacks.onRespond(accept)));
+  const sign = createRaiseSign();
+  const mesa = append(el('div', 'mesa'), el('div', 'mesa__tampo'), centre.el, mySlot.el, sign.el);
   const mine = createMyArea({
     onPlay: (card) => send(() => callbacks.onPlay(card)),
     onRaise: () => send(() => callbacks.onRaise()),
+    onRespond: (accept) => send(() => callbacks.onRespond(accept)),
     onTaunt: sendTaunt,
   });
   const panels = createPanels();
   const root = append(
     el('div', 'app app--mesa'),
-    el('div', 'luz'), header.el, panels.scores, append(el('main', 'salao'), mesa, prompt.el), panels.story, mine.el,
+    el('div', 'luz'), header.el, panels.scores, append(el('main', 'salao'), mesa), panels.story, mine.el,
   );
   root.hidden = true;
   root.addEventListener('pointerdown', (event) => {
@@ -159,7 +160,7 @@ export function createTable(container, callbacks, options = {}) {
       const wrap = append(el('div', 'lugar'), plate.el, slot.el);
       wrap.dataset.lado = spot.lado;
       wrap.dataset.dlado = spot.dlado;
-      wrap.style.setProperty('--py', `${spot.py}%`);
+      wrap.style.setProperty('--pyf', String(spot.py / 100));
       wrap.style.setProperty('--dx', `${spot.dx}%`);
       wrap.style.setProperty('--dy', `${spot.dy}%`);
       slot.el.style.setProperty('--de-x', ARRIVAL[spot.lado][0]);
@@ -266,6 +267,7 @@ export function createTable(container, callbacks, options = {}) {
     }
     mySlot.update(model.me.card, model.me.waiting, animate);
     setAttr(mySlot.el, 'data-vez', model.myTurnToPlay && model.me.card === null);
+    setAttr(mySlot.el, 'data-ocupada', model.me.card !== null);
 
     mine.update(model, {
       busy,
@@ -273,7 +275,7 @@ export function createTable(container, callbacks, options = {}) {
       animate,
       dealt: animate && events.some((event) => event.type === 'handDealt'),
     });
-    prompt.update(model.raise, { busy, online: model.online, animate });
+    sign.update(model.raise, animate);
     syncClock();
 
     if (fresh) {

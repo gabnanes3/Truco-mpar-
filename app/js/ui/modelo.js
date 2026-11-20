@@ -2,7 +2,7 @@
 // view; the only thing derived here is which card is leading the round on the table.
 
 import { isManilha, strength } from '../engine/cards.js';
-import { grito, lista, nomeDaCarta, pontos } from './textos.js';
+import { SEGREDO, grito, lista, nomeDaCarta, pontos } from './textos.js';
 
 /** @typedef {import('../net/types.js').RoomSnapshot} RoomSnapshot */
 /** @typedef {import('../engine/types.js').View} View */
@@ -43,12 +43,11 @@ import { grito, lista, nomeDaCarta, pontos } from './textos.js';
 /** @typedef {{ state: 'ganha' | 'melou' | 'agora' | 'futura', who: string }} RoundCell */
 /**
  * @typedef {Object} RaisePromptModel
- * @property {'responder' | 'esperar'} mode
- * @property {string} caller name, or "Você"
+ * @property {boolean} mustAnswer the viewer has to accept or run now
+ * @property {string | null} caller name (untrusted text); null when the viewer made the call
  * @property {string} word TRUCO, SEIS, NOVE or DOZE
- * @property {number} from
- * @property {number} to
- * @property {string} text what is happening, for whoever is looking at the prompt
+ * @property {number} to hand value if somebody accepts
+ * @property {string} label the whole call in one sentence, for screen readers
  */
 /**
  * @typedef {Object} ResultModel
@@ -86,7 +85,8 @@ import { grito, lista, nomeDaCarta, pontos } from './textos.js';
  * @property {boolean} playable
  * @property {string} emptyHand shown in place of the cards when there are none
  * @property {{ word: string, enabled: boolean, note: string } | null} raiseButton null for spectators
- * @property {string} hint
+ * @property {string} hint one line under the hand
+ * @property {NomeIcone | null} hintIcon
  * @property {RaisePromptModel | null} raise
  * @property {ResultModel | null} result
  * @property {BannerModel | null} banner
@@ -186,6 +186,9 @@ export function tableModel(snapshot) {
   const me = seat(ordered[0]);
   const iAmOut = meId !== null && me.state !== 'ativo';
   const myTurnToPlay = live && raise === null && hand.turn === meId && meId !== null;
+  // The secrecy rule is what the line under the hand says to whoever has to answer, and to everybody while
+  // nobody has answered yet.
+  const secretHint = online && raise !== null && raise.myAnswer === null && (raise.mustAnswer || raise.answered.length === 0);
 
   /** @type {TableModel['turnMode']} */
   let turnMode = 'parado';
@@ -193,6 +196,7 @@ export function tableModel(snapshot) {
   let turnCall = game.phase === 'over' ? 'Fim de partida' : hand === null ? 'Embaralhando…' : 'Próxima mão já vem';
   if (live && raise !== null) {
     turnMode = raise.mustAnswer ? 'minha' : 'outros';
+    turnLabel = `de ${hand.value} pra ${raise.value}`;
     turnCall = raise.mustAnswer ? 'Responda!' : 'Esperando a mesa';
   } else if (live && hand.turn !== null) {
     turnMode = myTurnToPlay ? 'minha' : 'outros';
@@ -224,6 +228,7 @@ export function tableModel(snapshot) {
     emptyHand: live && iAmOut ? 'Você correu. Na próxima mão você volta.' : '',
     raiseButton: spectator ? null : raiseButton(),
     hint: hint(),
+    hintIcon: secretHint ? 'cadeado' : null,
     raise: raise === null || hand === null ? null : raisePrompt(hand, raise),
     result: result(),
     banner: banner(snapshot.connection),
@@ -253,9 +258,11 @@ export function tableModel(snapshot) {
     if (game?.phase === 'over') return 'Fim de partida.';
     if (!live) return hand === null ? 'Embaralhando as cartas…' : 'Embaralhando a próxima mão…';
     if (raise !== null) {
-      const names = raise.answered.filter((id) => id !== meId).map(nameOf);
-      if (names.length === 0) return raise.myAnswer === null ? 'Ninguém respondeu ainda.' : 'Só você respondeu até agora.';
-      if (names.length > 2) return `${names.length} já responderam. Faltam ${raise.waiting.length}.`;
+      if (secretHint) return SEGREDO;
+      const left = raise.waiting.length === 1 ? 'Falta 1 resposta.' : `Faltam ${raise.waiting.length} respostas.`;
+      if (raise.myAnswer !== null) return `${raise.myAnswer ? 'Você aceitou' : 'Você correu'}. ${left}`;
+      const names = raise.answered.map(nameOf);
+      if (names.length > 2) return `${names.length} já responderam. ${left}`;
       return `${lista(names)} já ${names.length === 1 ? 'respondeu' : 'responderam'}.`;
     }
     if (spectator) return '';
@@ -270,19 +277,14 @@ export function tableModel(snapshot) {
    */
   function raisePrompt(current, pendingRaise) {
     const mine = pendingRaise.caller === meId;
-    let text = 'Esperando a mesa responder.';
-    if (pendingRaise.mustAnswer) text = `A mão sobe de ${current.value} pra ${pendingRaise.value}. Vai encarar?`;
-    else if (mine) text = `Você pediu pra mão valer ${pendingRaise.value}. Esperando a mesa.`;
-    else if (pendingRaise.myAnswer === true) text = 'Você aceitou. Esperando o resto da mesa.';
-    else if (pendingRaise.myAnswer === false) text = 'Você correu. Esperando o resto da mesa.';
-    else if (iAmOut) text = 'Você está fora desta mão. A mesa decide.';
+    const word = grito(pendingRaise.value);
+    const who = mine ? 'Você pediu' : `${nameOf(pendingRaise.caller)} pediu`;
     return {
-      mode: pendingRaise.mustAnswer ? 'responder' : 'esperar',
-      caller: mine ? 'Você' : nameOf(pendingRaise.caller),
-      word: grito(pendingRaise.value),
-      from: current.value,
+      mustAnswer: pendingRaise.mustAnswer,
+      caller: mine ? null : nameOf(pendingRaise.caller),
+      word,
       to: pendingRaise.value,
-      text,
+      label: `${who} ${word.toLowerCase()}: a mão sobe de ${current.value} pra ${pendingRaise.value}.`,
     };
   }
 

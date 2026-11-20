@@ -1,37 +1,31 @@
 /* ==========================================================================
    Sobreposições da mesa: pedido de aumento, resultado da mão, quem assiste,
    provocações. Nenhuma delas muda o tamanho do que está por baixo.
+   Depende de tokens.css, base.css e mesa.css (medidas da mesa e da minha área).
    ========================================================================== */
 
-/* ---------- pedido de aumento: a chapa vermelha batida na mesa ---------- */
+/* ---------- pedido de aumento: a chapa vermelha batida no pé da mesa, onde não tapa carta nenhuma;
+   a resposta (aceitar / correr) fica na minha área, no lugar da placa de pedir ---------- */
 .pedido {
-  --gw: min(288px, calc(100vw - 56px));
   position: absolute;
   left: 50%;
-  bottom: 4px;
+  bottom: var(--grito-pe);
   z-index: 5;
-  width: min(420px, calc(100% - 24px));
-  transform: translateX(-50%);
-  padding: calc(var(--gw) * 0.347 - 44px) 14px 12px;
-  border-radius: var(--r-painel);
-  background: var(--breu-2);
-  box-shadow: inset 0 0 0 1px rgba(236, 229, 214, 0.14), 0 5px 0 rgba(0, 0, 0, 0.45);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  width: var(--gw);
+  height: var(--grito-h);
+  margin-left: calc(var(--gw) / -2);
+  pointer-events: none;
 }
 .grito {
   position: absolute;
-  left: 50%;
-  top: -50px;
-  width: var(--gw);
-  height: calc(var(--gw) * 0.347);
-  transform: translateX(-50%) rotate(-3deg);
+  inset: 0;
+  transform: rotate(-2.5deg);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: calc(var(--gw) * 0.016);
+  padding-bottom: calc(var(--gw) * 0.012);
   color: var(--creme);
 }
 .grito__chapa { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
@@ -49,32 +43,27 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.grito__palavra { font: 900 italic calc(var(--gw) * 0.2) / 0.9 var(--f-letreiro); letter-spacing: -0.01em; text-shadow: 3px 4px 0 var(--tinta); padding-right: 6px; }
+.grito__palavra { font: 900 italic calc(var(--gw) * 0.178) / 0.86 var(--f-letreiro); letter-spacing: -0.01em; text-shadow: 3px 3.5px 0 var(--tinta); padding-right: 6px; }
 @keyframes gritar {           /* placa de TRUCO entrando */
-  0% { transform: translateX(-50%) rotate(-11deg) scale(0.6); opacity: 0; }
-  55% { transform: translateX(-50%) rotate(-1deg) scale(1.06); opacity: 1; }
-  100% { transform: translateX(-50%) rotate(-3deg) scale(1); }
+  0% { transform: rotate(-11deg) scale(0.6); opacity: 0; }
+  55% { transform: rotate(-1deg) scale(1.06); opacity: 1; }
+  100% { transform: rotate(-2.5deg) scale(1); }
 }
-@keyframes subir { from { transform: translate(-50%, 14px); opacity: 0; } }
-.pedido.anim { animation: subir 200ms var(--e-padrao) both; }
 .pedido.anim .grito { animation: gritar var(--t-grito-dur) var(--e-bater) both; }
 
-.pedido__sobe { display: flex; align-items: center; justify-content: center; gap: 10px; }
-.pedido__sobe p { min-width: 0; font: 500 14px/1.25 var(--f-ui); font-stretch: 92%; color: var(--giz); }
-.pedido__sobe p b { font-weight: 800; color: var(--gema); }
-.pedido__seta { width: 18px; height: 18px; color: var(--giz-2); flex: none; }
-.pedido__segredo {
+/* aceitar / correr: dois botões empilhados, do tamanho da placa de pedir que eles substituem */
+.responder {
+  flex: none;
+  align-self: stretch;
+  width: var(--pedir-w);
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 6px;
-  font: 500 12px/1.3 var(--f-ui);
-  font-stretch: 88%;
-  color: var(--giz-2);
+  flex-direction: column;
+  gap: 7px;
+  padding: 1px 0 5px;
 }
-.pedido__segredo svg { width: 13px; height: 13px; flex: none; margin-top: 1px; }
-.pedido__acoes { display: grid; grid-template-columns: 1fr 1.25fr; gap: 10px; }
-.pedido[data-modo="esperar"] .pedido__acoes { display: none; }
+.responder .btn { flex: 1 1 0; min-height: 44px; padding: 2px 4px 4px; gap: 3px; border-radius: 11px; }
+.responder .btn__txt { font-size: clamp(17px, calc(var(--pedir-w) * 0.215), 23px); }
+.responder .btn__sub { font-stretch: 76%; letter-spacing: 0.05em; white-space: nowrap; }
 
 /* ---------- resultado da mão: ocupa a zona das cartas, a mesa fica à mostra ---------- */
 .resultado {
@@ -190,17 +179,10 @@
 @keyframes abrir { from { transform: translateY(8px); opacity: 0; } }
 .provocar { animation: abrir 140ms var(--e-padrao) both; }
 
-/* telas baixas: o pedido encolhe pra não tapar a manilha */
-@media (max-height: 620px) {
-  .pedido { --gw: min(240px, calc(100vw - 56px)); gap: 10px; padding-top: calc(var(--gw) * 0.347 - 32px); padding-bottom: 10px; }
-  .grito { top: -44px; }
-  .pedido__sobe .vale, .pedido__seta { display: none; }
-  .pedido .btn { min-height: 52px; }
-}
-
 @media (min-width: 1200px) and (min-height: 700px) {
-  .app--mesa .pedido { --gw: 288px; bottom: 26px; }
   .app--mesa .provocar { right: calc(50% - 220px); }
+  .app--mesa .responder { gap: 9px; }
+  .app--mesa .responder .btn__sub { font-size: 12px; }
   .app--mesa .resultado__titulo { font-size: 30px; }
   .app--mesa .resultado__detalhe { font-size: 14.5px; }
   .app--mesa .resultado .vale { --tampa: 84px; }

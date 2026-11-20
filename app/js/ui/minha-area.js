@@ -1,11 +1,13 @@
 // My corner, always in the same place and in the dark: my plate, whose turn it is and how long is left,
-// my cards, the raise sign under the right thumb, the taunt picker, and the hand result.
+// my cards, the raise plate under the right thumb (or the answer to somebody else's raise, in the very same
+// place), the taunt picker, and the hand result.
 
 import { TAUNTS } from '../net/taunts.js';
 import { append, button, el, setAttr, setText, syncKeyed } from './dom.js';
 import { createCard } from './carta.js';
 import { createCap } from './centro.js';
 import { chapa, icone } from './icones.js';
+import { createRaiseAnswer } from './pedido.js';
 import { createPlate } from './placa.js';
 
 /** @typedef {import('./modelo.js').TableModel} TableModel */
@@ -18,6 +20,7 @@ const URGENT_SECONDS = 5;
  * @typedef {Object} MyAreaCallbacks
  * @property {(card: string) => void} onPlay
  * @property {() => void} onRaise
+ * @property {(accept: boolean) => void} onRespond
  * @property {(tauntId: string) => void} onTaunt
  */
 /**
@@ -53,7 +56,7 @@ export function createMyArea(callbacks) {
   /** @type {HTMLElement | null} */
   let picker = null;
 
-  // ---- hand + raise sign
+  // ---- hand + raise plate / answer buttons
   const cards = el('div', 'mao__cartas');
   const emptyHand = el('p', 'mao__vazio');
   const raiseWord = el('span', 'pedir__grito');
@@ -61,7 +64,8 @@ export function createMyArea(callbacks) {
   const raise = button('pedir');
   append(raise, chapa(98, 112, 9, 'pedir__chapa'), el('span', 'pedir__rot', 'pedir'), raiseWord, raiseNote);
   raise.addEventListener('click', () => callbacks.onRaise());
-  const hand = append(el('div', 'mao'), cards, emptyHand, raise);
+  const answer = createRaiseAnswer((accept) => callbacks.onRespond(accept));
+  const hand = append(el('div', 'mao'), cards, emptyHand, raise, answer.el);
 
   // ---- spectators get a notice instead of a hand
   const watching = append(
@@ -80,7 +84,10 @@ export function createMyArea(callbacks) {
   let resultKey = '';
 
   const zone = append(el('div', 'meu__zona'), hand, watching, result);
-  const hint = el('p', 'dica');
+  const hintIcon = el('span', 'dica__icone');
+  const hintText = el('span');
+  const hint = append(el('p', 'dica'), hintIcon, hintText);
+  let shownHintIcon = '';
   const root = append(el('section', 'meu'), append(el('div', 'meu__barra'), plate.el, clock, tauntButton), zone, hint);
   root.setAttribute('aria-label', 'Sua mão');
 
@@ -175,9 +182,17 @@ export function createMyArea(callbacks) {
         raise.disabled = !enabled || state.busy;
         setAttr(raise, 'aria-label', enabled ? `Pedir ${word.toLowerCase()}: ${note}` : `Pedir ${word.toLowerCase()} (${note})`);
       }
+      answer.update(model.raise, { busy: state.busy, online: model.online });
+      raise.hidden = !answer.el.hidden;
 
       renderResult(model.result, state.animate);
-      setText(hint, model.hint);
+      setText(hintText, model.hint);
+      const wantedIcon = model.hintIcon ?? '';
+      if (wantedIcon !== shownHintIcon) {
+        hintIcon.replaceChildren(...(model.hintIcon ? [icone(model.hintIcon)] : []));
+        shownHintIcon = wantedIcon;
+      }
+      hintIcon.hidden = model.hintIcon === null;
     },
     setClock(seconds, fraction) {
       setAttr(clock, 'data-sem-relogio', seconds === null);

@@ -12,7 +12,8 @@ import { startGalleryServer } from './support/galeria-servidor.js';
 
 const SHOTS = process.env.GALERIA_CAPTURAS
   ?? '/tmp/claude-0/-home-user/ae1380f4-6561-5426-99b9-b88233832240/scratchpad/work/galeria';
-const VIEWPORTS = [{ width: 390, height: 844 }, { width: 412, height: 915 }, { width: 768, height: 1024 }, { width: 1440, height: 900 }, { width: 1920, height: 1080 }, { width: 1200, height: 700 }, { width: 640, height: 360 }];
+// The three sizes the table is designed for, plus a 360×640 phone with the browser bars showing.
+const VIEWPORTS = [{ width: 320, height: 568 }, { width: 360, height: 640 }, { width: 1280, height: 800 }, { width: 360, height: 560 }];
 
 /** @type {import('playwright').Browser} */
 let browser;
@@ -81,7 +82,7 @@ function layoutProblems() {
   if (document.documentElement.scrollHeight > vh) problems.push(`vertical scroll: ${document.documentElement.scrollHeight} > ${vh}`);
 
   const parts = all('.topo > *, .placa, .placa__deu, .mesa .vaga, .mesa .carta, .giz-anel, .vaga__nota, .centro, .meu, .meu button, '
-    + '.tempo, .dica, .pedido, .grito, .resultado, .assistindo, .balao, .provocar, .lado .lousa');
+    + '.tempo, .dica, .pedido, .grito, .responder, .resultado, .assistindo, .balao, .provocar, .lado .lousa');
   for (const node of parts) {
     const box = node.getBoundingClientRect();
     if (box.left < -0.5 || box.top < -0.5 || box.right > vw + 0.5 || box.bottom > vh + 0.5) {
@@ -100,6 +101,22 @@ function layoutProblems() {
       if (overlapX > 0.5 && overlapY > 0.5) problems.push(`overlap: ${name(a)} × ${name(b)} (${overlapX.toFixed(1)} × ${overlapY.toFixed(1)} px)`);
     }
   });
+
+  // The raise sign is slammed where it covers no card and no plate (its box before the tilt is what counts).
+  for (const sign of all('.pedido')) {
+    const one = sign.getBoundingClientRect();
+    for (const node of all('.mesa .carta, .mesa .placa, .vira')) {
+      const two = node.getBoundingClientRect();
+      const overlapX = Math.min(one.right, two.right) - Math.max(one.left, two.left);
+      const overlapY = Math.min(one.bottom, two.bottom) - Math.max(one.top, two.top);
+      if (overlapX > 0.5 && overlapY > 0.5) problems.push(`under the raise sign: ${name(node)} (${overlapX.toFixed(1)} × ${overlapY.toFixed(1)} px)`);
+    }
+  }
+
+  // The line under the hand carries rules (e.g. that raise answers are secret): it must never be cut.
+  for (const line of all('.dica > span:last-child')) {
+    if (line.scrollWidth > line.clientWidth) problems.push(`cut text: ${name(line)}`);
+  }
 
   for (const node of all('button')) {
     const control = /** @type {HTMLElement} */ (node);
@@ -166,10 +183,12 @@ test('toque duplo na carta ou carta seguida de truco manda uma intenção só', 
 test('responder a um pedido manda aceitar ou correr uma vez só', async () => {
   const { context, show, page, errors } = await openPage(VIEWPORTS[1], 'reduce');
   await show('estado=pedido-responder');
-  assert.match(await page.locator('.pedido').innerText(), /As respostas ficam em segredo até todo mundo responder\./);
+  assert.match(await page.locator('.pedido').innerText(), /DUDA PEDIU\s+TRUCO!/i);
+  assert.match(await page.locator('.dica').innerText(), /As respostas ficam em segredo até todo mundo responder\./);
   assert.equal(await page.locator('.mao__cartas .carta:disabled').count(), 3, 'no card can be played while a raise is pending');
-  await page.click('.pedido__acoes .btn >> nth=1');
-  await page.locator('.pedido__acoes .btn').first().dispatchEvent('click');
+  assert.equal(await page.locator('.pedir').isVisible(), false, 'the answer takes the place of the raise plate');
+  await page.click('.responder__aceitar');
+  await page.locator('.responder__correr').dispatchEvent('click');
   assert.deepEqual(await page.evaluate(() => /** @type {any} */ (window).intents), [['respond', true]]);
   assert.deepEqual(errors, []);
   await context.close();

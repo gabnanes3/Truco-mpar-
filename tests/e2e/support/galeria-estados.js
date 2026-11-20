@@ -301,6 +301,7 @@ const BUILDERS = {
   },
   espectador: () => still(seteNaSegundaRodada(), { spectator: true, offline: ['p2'] }),
   reconectando: () => still(cincoNaSegundaRodada(), { connection: 'reconnecting' }),
+  'anfitriao-sumiu': () => still(cincoNaSegundaRodada(), { connection: 'host-away' }),
   provocacao: () => {
     const { state } = cincoNaSegundaRodada();
     /** @type {RoomEvent[]} */

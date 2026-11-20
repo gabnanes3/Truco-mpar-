@@ -8,13 +8,12 @@ import { nomeDaCarta } from './textos.js';
 /**
  * The hand value in a crown cap. It changes colour as the hand heats up: cream 1, yolk 3, orange 6, red 9
  * and 12.
- * @param {{ small?: boolean, label?: string }} [options]
  * @returns {{ el: HTMLElement, set: (value: number, text?: string, label?: string) => void }}
  */
-export function createCap(options = {}) {
-  const root = el('div', options.small ? 'vale vale--p' : 'vale');
+export function createCap() {
+  const root = el('div', 'vale');
   root.setAttribute('role', 'img');
-  const label = el('span', 'vale__rot', options.label ?? 'vale');
+  const label = el('span', 'vale__rot', 'vale');
   const number = el('b', 'vale__n');
   append(root, tampinha(), append(el('span', 'vale__txt'), label, number));
   return {

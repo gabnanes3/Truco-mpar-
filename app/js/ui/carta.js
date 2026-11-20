@@ -27,7 +27,12 @@ export function createCard(id, options = {}) {
   if (options.manilha) {
     card.classList.add('carta--manilha');
     append(card, append(el('i', 'carta__selo'), estrela()));
-    if (options.hand) card.appendChild(el('span', 'carta__faixa', apelidoDaManilha(id)));
+    if (options.hand) {
+      const band = el('span', 'carta__faixa', apelidoDaManilha(id));
+      // The zap also says it is the top card, where the card is wide enough for it (see cartas.css).
+      if (id[1] === 'p') band.appendChild(el('span', 'carta__maior', ' · a maior'));
+      card.appendChild(band);
+    }
     label += `, manilha (${apelidoDaManilha(id)})`;
   }
   card.setAttribute('aria-label', label);

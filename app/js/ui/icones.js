@@ -17,7 +17,6 @@ const ICONES = {
   'sem-sinal': '<path d="M2.5 9a14 14 0 0 1 19 0M6 13a9 9 0 0 1 12 0M9.5 16.800a4.200 4.200 0 0 1 5 0M4 3.500l16 17"/><circle cx="12" cy="20" r="1.500" fill="currentColor" stroke="none"/>',
   baralho: '<rect x="9" y="2.500" width="11" height="15.500" rx="2" transform="rotate(10 14.500 10)"/><rect x="4" y="5.500" width="11" height="15.500" rx="2" fill="currentColor"/>',
   cadeado: '<rect x="4.500" y="10.500" width="15" height="10.500" rx="2.300" fill="currentColor" stroke="none"/><path d="M8 10.500V7.800a4 4 0 0 1 8 0v2.700"/>',
-  seta: '<path d="M4 12h15M13 6l6 6-6 6"/>',
   sair: '<path d="M10 4H6.500a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2H10M15 7.500l4.500 4.500-4.500 4.500M19.500 12H9.500"/>',
   som: '<path d="M4 9.500v5h3.500l5 4v-13l-5 4z" fill="currentColor"/><path d="M16 9a4.200 4.200 0 0 1 0 6M18.700 6.300a8 8 0 0 1 0 11.400"/>',
   mudo: '<path d="M4 9.500v5h3.500l5 4v-13l-5 4z" fill="currentColor"/><path d="M16.500 9.500l5 5M21.500 9.500l-5 5"/>',

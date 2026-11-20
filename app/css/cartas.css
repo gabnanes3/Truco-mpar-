@@ -78,6 +78,7 @@
   white-space: nowrap;
   overflow: hidden;
 }
+.carta__maior { display: none; }      /* "zap · a maior" só cabe na carta larga da mesa redonda */
 .carta--manilha.carta--mao .carta__n { bottom: calc(var(--w) * 0.31); }
 
 /* anulada: quem saiu da mão deixou a carta, mas ela não vale mais */

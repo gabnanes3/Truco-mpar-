@@ -4,9 +4,13 @@
    Depende de tokens.css, base.css e cartas.css.
    ========================================================================== */
 .app--mesa {
+  --vh: 1vh;                     /* 1 % da altura da tela, pras medidas que precisam caber em pé */
   height: 100vh;
   height: 100dvh;
   min-height: 500px;
+}
+@supports (height: 1dvh) {
+  .app--mesa { --vh: 1dvh; }     /* com a barra do navegador à mostra a tela é mais baixa do que 100vh diz */
 }
 
 /* ==========================================================================
@@ -46,7 +50,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 0 8px;
+  padding: 0 7px;
   font: 600 11.5px/1 var(--f-ui);
   font-stretch: 80%;
   color: var(--giz-3);
@@ -54,7 +58,7 @@
 }
 .rodada + .rodada { border-left: 1px solid rgba(236, 229, 214, 0.13); }
 .rodada__n { flex: none; }
-.rodada__quem { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-weight: 700; color: var(--giz); }
+.rodada__quem { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; font-weight: 700; font-stretch: 72%; color: var(--giz); }
 .rodada__extra { display: none; }
 .rodada svg { flex: none; width: 11px; height: 11px; color: var(--giz); stroke-width: 3; }
 .rodada[data-estado="ganha"] .rodada__n { display: none; }    /* a posição já diz qual rodada foi */
@@ -96,13 +100,18 @@
 .mesa {
   position: absolute;
   inset: 0;
-  --cw: clamp(38px, 12.2vw, 50px);      /* carta na mesa */
-  --pw: clamp(74px, 23.4vw, 96px);      /* placa de jogador */
+  --cw: clamp(38px, min(12.2vw, 6.9 * var(--vh)), 50px);      /* carta na mesa: cabe na largura e na altura */
+  --pw: clamp(74px, 23.4vw, 96px);                            /* placa de jogador */
   --ch: calc(var(--cw) * 1.41);
   --tampa: 54px;
+  /* a chapa de um pedido de aumento fica no pé da mesa; a minha vaga sobe pra dar lugar a ela */
+  --gw: min(264px, calc(100vw - 72px), 42 * var(--vh));
+  --grito-h: calc(var(--gw) * 0.3);
+  --grito-pe: 12px;
+  --vaga-pe: 14px;
 }
 /* com um ou dois adversários sobra mesa: tudo cresce */
-.mesa[data-k="1"], .mesa[data-k="2"] { --cw: clamp(46px, 14.4vw, 58px); --pw: clamp(104px, 30vw, 124px); }
+.mesa[data-k="1"], .mesa[data-k="2"] { --cw: clamp(46px, min(14.4vw, 8.1 * var(--vh)), 58px); --pw: clamp(104px, 30vw, 124px); }
 
 .mesa__tampo {
   position: absolute;
@@ -130,7 +139,15 @@
 .mesa[data-pedido] .mesa__tampo::after { opacity: 1; }
 
 /* ---------- lugares: a placa na borda, a carta logo pra dentro ---------- */
-.lugar { position: absolute; top: var(--py, 0%); display: flex; align-items: center; gap: 5px; }
+/* As fileiras ficam em frações da altura da mesa (--pyf); numa mesa baixa elas se apertam pra cima, de
+   modo que a última fileira (0,61) nunca chega no pé da mesa, onde ficam a minha vaga e a chapa do pedido. */
+.lugar {
+  position: absolute;
+  top: min(calc(100% * var(--pyf, 0)), calc((100% - var(--grito-h) - var(--grito-pe) - var(--ch) - 6px) * var(--pyf, 0) / 0.61));
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
 .lugar[data-lado="esq"] { left: 4px; flex-direction: row; }
 .lugar[data-lado="dir"] { right: 4px; flex-direction: row-reverse; }
 .lugar[data-lado="topo"] { top: 10px; left: 50%; transform: translateX(-50%); flex-direction: row; }
@@ -267,9 +284,12 @@
 .vaga--minha {
   position: absolute;
   left: 50%;
-  bottom: max(12px, 4.2%);
+  bottom: var(--vaga-pe);
   transform: translateX(-50%);
+  transition: translate 200ms var(--e-padrao);
 }
+/* a carta que eu já joguei sobe pra 6 px acima da chapa: numa mesa apertada, bem na linha da última fileira */
+.mesa[data-pedido] .vaga--minha[data-ocupada] { translate: 0 calc(var(--vaga-pe) - var(--grito-pe) - var(--grito-h) - 6px); }
 .vaga--minha .vaga__nota { left: calc(100% + 12px); top: 50%; transform: translateY(-50%); }
 .vaga--minha[data-vez] { border: 1.5px dashed rgba(244, 180, 31, 0.85); background: rgba(19, 14, 12, 0.12); box-shadow: none; }
 
@@ -285,9 +305,12 @@
   gap: 6px;
 }
 .mesa[data-topo] .centro { top: calc(var(--ch) + 18px); }
+.mesa[data-k="2"] .centro { top: 11%; }      /* três na mesa: a vira desce pro meio, entre os dois cantos e eu */
 .mesa[data-k="1"] .centro { top: 64px; flex-direction: row; align-items: center; gap: calc(var(--cw) + 28px); }
 .mesa[data-k="1"] .vira { margin: 0 9px; }   /* same width as the cap column, so the gap stays on the axis */
 .centro__valor { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+/* com um pedido na mesa quem fala de valor é a chapa: a tampinha sai e volta com o valor novo */
+.mesa[data-pedido] .centro__valor { visibility: hidden; }
 .vale {
   position: relative;
   width: var(--tampa);
@@ -307,10 +330,6 @@
 .vale[data-v="9"], .vale[data-v="12"] { color: var(--creme); }
 .vale[data-v="9"] .vale__tampa circle, .vale[data-v="12"] .vale__tampa circle { stroke: var(--creme); }
 .vale[data-v="12"] .vale__n { font-size: calc(var(--tampa) * 0.4); }
-.vale--p { --tampa: 38px; flex: none; }
-.vale--p .vale__rot { display: none; }
-.vale--p .vale__n { font-size: 21px; }
-.vale--p[data-v="12"] .vale__n { font-size: 18px; }
 @keyframes virar { 50% { transform: rotateY(90deg); } }
 .vale.anim { animation: virar 260ms var(--e-padrao); }
 
@@ -370,7 +389,7 @@
    ========================================================================== */
 .meu {
   --pedir-w: clamp(80px, 25vw, 98px);
-  --wm: clamp(58px, calc((100vw - 56px - var(--pedir-w)) / 3), 84px);
+  --wm: clamp(58px, min(calc((100vw - 56px - var(--pedir-w)) / 3), 11.2 * var(--vh)), 84px);
   position: relative;
   z-index: 3;
   flex: none;
@@ -382,7 +401,7 @@
 .meu__barra { display: flex; align-items: center; gap: 10px; height: 44px; }
 .placa--eu { width: clamp(96px, 29vw, 124px); padding-right: 9px; }
 .placa--eu .placa__nome { font-size: 13.5px; font-stretch: 72%; }
-.placa--eu .placa__deu { right: 8px; }
+.placa--eu .placa__deu { top: -10px; right: 8px; }    /* mais baixa: não encosta na chapa de um pedido */
 
 .tempo {
   flex: 1;
@@ -447,7 +466,10 @@
 .mao__cartas[data-jogavel] .carta:active { translate: 0 -1px; }
 .mao__vazio { max-width: 190px; text-align: center; font: 500 13px/1.35 var(--f-ui); font-stretch: 92%; color: var(--giz-2); }
 
-.dica { height: 14px; text-align: center; font: 500 12px/14px var(--f-ui); font-stretch: 86%; color: var(--giz-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dica { height: 14px; display: flex; align-items: center; justify-content: center; gap: 5px; font: 500 12px/14px var(--f-ui); font-stretch: 86%; color: var(--giz-3); }
+.dica > span:last-child { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dica__icone { flex: none; }
+.dica__icone svg { width: 12px; height: 12px; }
 
 /* ---------- placa de pedir (o aumento é uma chapa que se bate na mesa) ---------- */
 .pedir {
@@ -515,6 +537,7 @@
   .rodada[data-estado="ganha"] .rodada__quem { display: none; }
   .rodada[data-estado="ganha"] .rodada__n { display: inline; color: var(--giz); }
   .placa { padding-left: 5px; padding-right: 5px; }
+  .dica { font-stretch: 76%; }
 }
 @media (min-width: 380px) {
   .placa__nome { font-stretch: 72%; }
@@ -553,13 +576,14 @@
   .lado { display: flex; flex-direction: column; gap: 16px; padding: 20px; min-height: 0; }
   .lado--placar { grid-column: 1; grid-row: 2 / 4; }
   .lado--resenha { grid-column: 3; grid-row: 2 / 4; }
-  .app--mesa .salao { grid-column: 2; grid-row: 2; min-height: 0; }
+  .app--mesa .salao { grid-column: 2; grid-row: 2; min-height: 0; margin-top: 8px; }
   .app--mesa .meu { --pedir-w: 122px; --wm: 104px; grid-column: 2; grid-row: 3; padding: 4px 24px 20px; gap: 10px; align-items: center; }
   .app--mesa .meu__barra { width: 440px; }
   .app--mesa .meu__zona { width: 560px; height: 160px; }
   .app--mesa .mao { gap: 28px; }
   .app--mesa .mao__cartas { gap: 8px; }
   .app--mesa .mao__cartas .carta:hover:not(:disabled) { translate: 0 -10px; }
+  .app--mesa .carta__maior { display: inline; }
   .app--mesa .pedir__rot { font-size: 12px; }
   .app--mesa .pedir__vale { height: 21px; font-size: 12px; line-height: 21px; }
   .app--mesa .dica { height: 16px; font-size: 13px; line-height: 16px; }
@@ -577,6 +601,9 @@
     --cw: 56px;
     --pw: 132px;
     --tampa: 66px;
+    --gw: 252px;
+    --grito-pe: 12px;
+    --vaga-pe: 46px;
   }
   .app--mesa .mesa__tampo {
     inset: 30px 34px 22px;
@@ -604,8 +631,9 @@
   .app--mesa .placa__deu { top: -14px; right: 10px; left: auto; height: 20px; font-size: 12px; transform: rotate(-3deg); }
   .app--mesa .placa__deu svg { width: 13px; height: 13px; }
   .app--mesa .lugar[data-dlado="dir"] .placa__deu { right: auto; left: 10px; transform: rotate(3deg); }
+  .app--mesa .placa--eu .placa__deu { top: -17px; right: auto; left: 10px; }   /* no canto, longe da chapa de um pedido */
 
-  .app--mesa .centro { top: 15.5%; flex-direction: column; gap: 8px; }
+  .app--mesa .centro, .app--mesa .mesa[data-k="2"] .centro { top: 15.5%; flex-direction: column; gap: 8px; }
   .app--mesa .mesa[data-topo] .centro { top: 33%; flex-direction: row; align-items: center; gap: 22px; }
   .app--mesa .mesa[data-k="1"] .centro { top: 37%; }
   .app--mesa .vale__rot { font-size: 11px; font-stretch: 82%; letter-spacing: 0.1em; }
@@ -613,7 +641,6 @@
   .app--mesa .vira { gap: 7px; padding: 9px 9px 8px; border-radius: 12px; }
   .app--mesa .manilha-rot { height: 20px; font-size: 12.5px; font-stretch: 82%; gap: 6px; }
   .app--mesa .manilha-rot b { min-width: 19px; height: 19px; font-size: 15px; line-height: 19px; }
-  .app--mesa .vaga--minha { bottom: 9.4%; }
   .app--mesa .vaga__nota { font-size: 14px; top: calc(100% + 10px); }
   .app--mesa .lugar .vaga__nota { left: 50%; right: auto; transform: translateX(-50%); }
   .app--mesa .vaga--minha .vaga__nota { left: calc(100% + 16px); top: 50%; }
