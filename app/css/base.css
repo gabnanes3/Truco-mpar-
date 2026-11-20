@@ -71,6 +71,8 @@ p, h1, h2, h3 { margin: 0; }
   margin: 0 auto;
   padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
   overflow: hidden;
+  /* "clip" corta igual, mas não deixa nada (foco, toque num botão) rolar a tela de lado, e não prende o que é sticky */
+  overflow: clip;
 }
 
 /* a lâmpada: um único gradiente, sem filtro */

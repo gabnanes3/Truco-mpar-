@@ -325,7 +325,10 @@ function tickClock() {
 // ------------------------------------------------------------------------------------------------- boot
 
 // Browsers only let a page make sound after a tap or a key press: every one of them (re)opens the audio.
-for (const type of ['pointerdown', 'keydown']) document.addEventListener(type, () => sound.unlock(), { capture: true, passive: true });
+// Which of these events counts as "a tap" differs between browsers, so all of them are heard.
+for (const type of ['pointerdown', 'pointerup', 'touchend', 'click', 'keydown']) {
+  document.addEventListener(type, () => sound.unlock(), { capture: true, passive: true });
+}
 window.setInterval(tickClock, 200);
 
 const invite = normalizeCode(new URLSearchParams(location.search).get('sala'));

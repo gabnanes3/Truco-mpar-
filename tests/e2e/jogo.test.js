@@ -313,7 +313,32 @@ test('um código que não existe leva à tela "não achei essa mesa", com caminh
   assert.equal(new URL(device.page.url()).search, '', 'o endereço não aponta mais pra mesa que não existe');
 });
 
+test('o som desligado continua desligado depois de recarregar, e fechar a mesa leva de volta ao início', { timeout: 60000 }, async () => {
+  const device = await openDevice('Lia');
+  await device.page.goto(servers.appUrl);
+  await device.page.fill('input[name="nome"]', 'Lia');
+  await device.page.getByRole('button', { name: 'Abrir uma mesa' }).click();
+  await device.page.waitForSelector(LOBBY, { timeout: WAIT_MS });
+  await device.page.waitForURL(/\?sala=[A-Z2-9]{6}$/, { timeout: WAIT_MS });
+  const address = device.page.url();
+  const sound = device.page.locator('.barra .icone-btn[aria-pressed]');
+  assert.equal(await sound.getAttribute('aria-pressed'), 'true', 'o som começa ligado');
+  await sound.click();
+  assert.equal(await sound.getAttribute('aria-pressed'), 'false');
+
+  await device.page.reload();
+  await device.page.waitForSelector(LOBBY, { timeout: WAIT_MS });
+  assert.equal(device.page.url(), address, 'quem abriu a mesa volta pra mesma mesa');
+  assert.deepEqual(await roster(device), ['Lia']);
+  assert.equal(await sound.getAttribute('aria-pressed'), 'false', 'a escolha do som fica guardada');
+
+  await device.page.getByRole('button', { name: 'Sair da mesa' }).click();
+  await device.page.getByRole('button', { name: 'Fechar a mesa' }).click();
+  await device.page.waitForSelector('.app--inicio', { timeout: WAIT_MS });
+  assert.equal(new URL(device.page.url()).search, '', 'o endereço deixa de apontar pra mesa fechada');
+});
+
 test('nenhuma página registrou erro no console, exceção, requisição falha ou 404', () => {
-  assert.ok(devices.length >= 9);
+  assert.ok(devices.length >= 10);
   for (const device of devices) assert.deepEqual(device.errors, [], `erros na página de ${device.name}`);
 });

@@ -3,8 +3,6 @@
    cheia e diálogos. Depende de tokens.css, base.css e cartas.css.
    ========================================================================== */
 
-/* Estas telas rolam quando o conteúdo passa da altura; "clip" corta a lâmpada sem prender o rodapé fixo. */
-.app--inicio, .app--sala, .app--fim, .app--aviso { overflow: clip; }
 .app--inicio .luz, .app--fim .luz, .app--aviso .luz {
   background: radial-gradient(closest-side, rgba(244, 180, 31, 0.24), rgba(244, 180, 31, 0.07) 55%, rgba(244, 180, 31, 0) 100%);
 }
@@ -93,6 +91,15 @@
   .marca { width: 196px; margin-top: 10px; }
   .inicio__lema { margin-top: 8px; font-size: 14px; }
   .inicio__form { margin-top: 14px; gap: 11px; }
+}
+@media (max-height: 600px) {
+  .inicio__heroi { height: 62px; margin-top: 8px; }
+  .inicio__heroi .carta { --w: 38px; margin-left: -19px; top: 6px; }
+  .inicio__heroi .carta:nth-child(1) { transform: translate(-34px, 5px) rotate(-12deg); }
+  .inicio__heroi .carta:nth-child(3) { transform: translate(34px, 5px) rotate(12deg); }
+  .marca { width: 168px; margin-top: 8px; }
+  .inicio__form { margin-top: 12px; gap: 10px; }
+  .inicio__rodape { padding-top: 4px; }
 }
 @media (max-width: 339px) {
   .inicio { padding: 0 16px; }
@@ -193,7 +200,7 @@
 .alvo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   min-height: 60px;
   padding: 8px 14px;
   border-top: 1px solid rgba(236, 229, 214, 0.09);
@@ -206,11 +213,11 @@
   color: var(--giz-2);
   white-space: nowrap;
 }
-.alvo__un { display: inline-flex; align-items: center; gap: 6px; }
-.alvo__un svg { width: 13px; height: 13px; color: var(--giz-3); }
-.alvo__ops { display: flex; gap: 8px; margin: 0 auto; }
+.alvo__un { display: inline-flex; align-items: center; gap: 5px; }
+.alvo__un svg { width: 12px; height: 12px; color: var(--giz-3); }
+.alvo__ops { display: flex; gap: 6px; margin: 0 auto; }
 .alvo__op {
-  width: 50px;
+  width: 46px;
   height: 44px;
   border-radius: 9px;
   box-shadow: inset 0 0 0 1.5px var(--breu-4);
@@ -220,7 +227,8 @@
 }
 .alvo__op[aria-checked="true"] { background: var(--gema); color: var(--tinta); box-shadow: 0 3px 0 var(--gema-2); transform: translateY(-1px); }
 .alvo__op:active:not(:disabled):not([aria-checked="true"]) { transform: translateY(2px); }
-.alvo[data-fixo] .alvo__op:not([aria-checked="true"]) { color: var(--giz-3); box-shadow: inset 0 0 0 1px var(--breu-3); opacity: 0.7; }
+/* pra quem só vê: as fichas que não valem ficam menores e apagadas */
+.alvo[data-fixo] .alvo__op:not([aria-checked="true"]) { width: 38px; color: var(--giz-3); box-shadow: inset 0 0 0 1px var(--breu-3); opacity: 0.7; }
 
 .aviso-impar { display: flex; align-items: center; gap: 10px; padding: 0 4px; font: 500 13px/1.35 var(--f-ui); font-stretch: 92%; color: var(--giz-2); }
 .aviso-impar b { color: var(--gema); font-weight: 700; }
@@ -255,7 +263,6 @@
   .btn--linha .btn__txt { font-size: 13.5px; font-stretch: 82%; }
   .alvo { gap: 6px; padding: 8px 10px; }
   .alvo__op { width: 44px; }
-  .alvo__ops { gap: 6px; }
 }
 
 /* ==========================================================================
@@ -263,7 +270,7 @@
    ========================================================================== */
 .fim { position: relative; flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 18px 16px 0; }
 .fim__cab { display: flex; align-items: center; gap: 14px; padding: 0 2px; }
-.fim__cab .vale { --tampa: 76px; position: relative; left: auto; top: auto; flex: none; width: 76px; height: 76px; display: grid; place-items: center; color: var(--tinta); transform: rotate(-8deg); }
+.fim__cab .vale { --tampa: 76px; flex: none; transform: rotate(-8deg); }
 .fim__cab .vale__n { font-size: 34px; }
 .fim__txt { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
 .fim__titulo {
@@ -275,6 +282,7 @@
   padding-right: 4px;
 }
 .fim__titulo span { display: block; }
+.fim__titulo[data-longo] { font-size: 29px; }
 .fim__sub { font: 500 13px/1.3 var(--f-ui); font-stretch: 92%; color: var(--giz-2); }
 .final > li {
   display: grid;
@@ -369,5 +377,7 @@
   .app--sala .sala__fim, .app--fim .fim__acoes { position: static; margin-top: 18px; padding-top: 0; background: none; }
   .inicio__rodape { margin-top: 26px; }
   .rodape-ladrilho { position: fixed; left: 0; right: 0; bottom: 0; }
-  .luz { width: 760px; height: 560px; top: -180px; }
+  /* a lâmpada ilumina o salão inteiro, não só a coluna */
+  .app--inicio, .app--sala, .app--fim, .app--aviso { overflow: visible; }
+  .app--inicio .luz, .app--sala .luz, .app--fim .luz, .app--aviso .luz { width: min(900px, 94vw); height: 620px; top: -200px; }
 }
