@@ -1,0 +1,163 @@
+/* ==========================================================================
+   Cartas — desenhadas em CSS + SVG. --w define tudo: raio, tipo e naipe são
+   proporções da largura. Uma diagonal, duas marcas: valor em cima, naipe embaixo.
+   ========================================================================== */
+.carta {
+  --w: 44px;
+  position: relative;
+  flex: none;
+  display: block;
+  width: var(--w);
+  height: calc(var(--w) * 1.41);
+  border-radius: calc(var(--w) * var(--r-carta));
+  background: var(--creme);
+  color: var(--tinta);
+  box-shadow: var(--sombra-carta);
+}
+.carta::after { /* fio interno: a "margem de impressão" */
+  content: "";
+  position: absolute;
+  inset: calc(var(--w) * 0.055);
+  border: max(0.75px, calc(var(--w) * 0.012)) solid currentColor;
+  border-radius: calc(var(--w) * 0.06);
+  opacity: 0.16;
+  pointer-events: none;
+}
+.carta[data-cor="v"] { color: var(--carmim); }
+.carta__v {
+  position: absolute;
+  left: calc(var(--w) * 0.12);
+  top: calc(var(--w) * 0.07);
+  font: 800 calc(var(--w) * 0.52) / 1 var(--f-letreiro);
+  letter-spacing: -0.02em;
+}
+.carta__n {
+  position: absolute;
+  right: calc(var(--w) * 0.11);
+  bottom: calc(var(--w) * 0.12);
+  width: calc(var(--w) * 0.5);
+  height: calc(var(--w) * 0.5);
+  fill: currentColor;
+}
+
+/* na mão: maior, com sombra alta; é um botão */
+.carta--mao { --w: var(--wm, 84px); box-shadow: var(--sombra-carta-alta); }
+.carta--mao .carta__v { font-size: calc(var(--w) * 0.46); top: calc(var(--w) * 0.06); }
+.carta--mao .carta__n { width: calc(var(--w) * 0.46); height: calc(var(--w) * 0.46); }
+
+/* manilha: moldura gema grossa + selo de estrela no canto (+ faixa com o apelido, na mão) */
+.carta--manilha { box-shadow: inset 0 0 0 calc(var(--w) * 0.05) var(--gema), var(--sombra-carta); }
+.carta--manilha::after { inset: calc(var(--w) * 0.085); opacity: 0.22; }
+.carta--manilha.carta--mao { box-shadow: inset 0 0 0 calc(var(--w) * 0.05) var(--gema), var(--sombra-carta-alta); }
+.carta__selo {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: calc(var(--w) * 0.42);
+  height: calc(var(--w) * 0.42);
+  border-top-right-radius: calc(var(--w) * var(--r-carta));
+  background: var(--gema);
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+  color: var(--tinta);
+}
+.carta__selo svg { position: absolute; top: 8%; right: 8%; width: 44%; height: 44%; fill: currentColor; }
+.carta__faixa {
+  position: absolute;
+  left: calc(var(--w) * 0.05);
+  right: calc(var(--w) * 0.05);
+  bottom: calc(var(--w) * 0.05);
+  height: max(17px, calc(var(--w) * 0.21));
+  border-radius: 0 0 calc(var(--w) * 0.06) calc(var(--w) * 0.06);
+  background: var(--gema);
+  color: var(--tinta);
+  font: 800 max(11px, calc(var(--w) * 0.125)) / max(17px, calc(var(--w) * 0.215)) var(--f-ui);
+  font-stretch: 64%;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.carta--manilha.carta--mao .carta__n { bottom: calc(var(--w) * 0.31); }
+
+/* anulada: quem saiu da mão deixou a carta, mas ela não vale mais */
+.carta--anulada { opacity: 0.5; transform: rotate(6deg); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.3); }
+.carta--anulada::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  background: linear-gradient(to top right, transparent calc(50% - 1.2px), var(--tinta) calc(50% - 1.2px), var(--tinta) calc(50% + 1.2px), transparent calc(50% + 1.2px));
+}
+
+/* verso: borda creme, campo anil, ladrilho de argolas */
+.carta--verso { background: var(--creme) url("../assets/img/verso.svg") center / 100% 100% no-repeat; overflow: hidden; }
+.carta--verso::after { display: none; }
+
+/* ---------- vaga: onde a carta de cada um cai ---------- */
+.vaga {
+  position: relative;
+  flex: none;
+  width: var(--cw);
+  height: calc(var(--cw) * 1.41);
+  border-radius: calc(var(--cw) * 0.1);
+}
+.vaga[data-espera] { box-shadow: inset 0 0 0 1px rgba(247, 239, 221, 0.2); background: rgba(19, 14, 12, 0.1); }
+.vaga__jogada { position: absolute; inset: 0; }
+.vaga .carta { --w: var(--cw); position: absolute; inset: 0; }
+.vaga .carta[data-destaque] {
+  transform: translateY(-3px) rotate(-2deg);
+  box-shadow: var(--sombra-carta-alta);
+}
+.vaga .carta--manilha[data-destaque] { box-shadow: var(--sombra-carta-alta), inset 0 0 0 calc(var(--w) * 0.05) var(--gema); }
+.giz-anel {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 2;
+  width: calc(var(--cw) * 1.42);
+  height: calc(var(--cw) * 1.94);
+  transform: translate(-50%, -52%);
+  fill: none;
+  stroke: var(--creme);
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  pointer-events: none;
+  overflow: visible;
+}
+.giz-anel path:first-child { stroke-dasharray: 260; stroke-dashoffset: 0; }
+.vaga__nota {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 8px);
+  z-index: 2;
+  transform: translateX(-50%);
+  font: 900 italic 12px/1 var(--f-letreiro);
+  color: var(--creme);
+  white-space: nowrap;
+  pointer-events: none;
+}
+/* nas fileiras laterais a anotação cresce pro lado da placa, nunca pro meio da mesa */
+.lugar[data-lado="esq"] .vaga__nota { left: auto; right: 0; transform: none; }
+.lugar[data-lado="dir"] .vaga__nota { left: 0; transform: none; }
+
+/* ---------- movimento das cartas ---------- */
+@keyframes bater {            /* carta chegando na mesa, vinda do lado de quem jogou */
+  0% { transform: translate(var(--de-x, 0), var(--de-y, -18px)) scale(1.18) rotate(-6deg); opacity: 0; }
+  60% { opacity: 1; }
+  100% { opacity: 1; }
+}
+@keyframes recolher {         /* a rodada vai pra quem levou */
+  to { transform: translate(var(--para-x, 0), var(--para-y, 0)) scale(0.5) rotate(8deg); opacity: 0; }
+}
+@keyframes sumir { to { opacity: 0; } }
+@keyframes riscar { from { stroke-dashoffset: 260; } }
+@keyframes distribuir {       /* cartas chegando na mão */
+  from { transform: translateY(-46px) rotate(-8deg) scale(0.86); opacity: 0; }
+}
+.anim-bater { animation: bater var(--t-carta) var(--e-bater) both; }
+.anim-recolher { animation: recolher 360ms var(--e-sair) forwards; pointer-events: none; }
+.anim-sumir { animation: sumir 160ms linear forwards; pointer-events: none; }
+.anim-riscar path:first-child { animation: riscar 300ms linear both; }
+.anim-distribuir { animation: distribuir 260ms var(--e-padrao) backwards; animation-delay: calc(var(--i, 0) * 70ms); }

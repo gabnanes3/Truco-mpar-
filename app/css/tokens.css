@@ -1,0 +1,96 @@
+/* ==========================================================================
+   Truco Ímpar — "Mesa Acesa"
+   Tokens de identidade. Tudo que é cor, tipo, raio, sombra e tempo mora aqui.
+   ========================================================================== */
+
+/* Sansita — @fontsource/sansita 5.3.0 — SIL OFL 1.1 (Omnibus-Type) */
+@font-face {
+  font-family: "Sansita";
+  src: url("../assets/fonts/sansita-latin-900-italic.woff2") format("woff2");
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Sansita";
+  src: url("../assets/fonts/sansita-latin-800-normal.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+/* Archivo (variável: peso 100–900, largura 62–125 %) —
+   @fontsource-variable/archivo 5.3.0 — SIL OFL 1.1 (Omnibus-Type) */
+@font-face {
+  font-family: "Archivo";
+  src: url("../assets/fonts/archivo-latin-wdth-normal.woff2") format("woff2-variations"),
+       url("../assets/fonts/archivo-latin-wdth-normal.woff2") format("woff2");
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* ---- O salão (escuro quente, nunca preto puro) ---- */
+  --breu: #130e0c;        /* fundo do salão */
+  --breu-2: #1f1714;      /* superfícies no escuro: lousa, campos */
+  --breu-3: #30241e;      /* divisórias, trilhos */
+  --breu-4: #4d3b31;      /* bordas de campo, contornos inativos */
+
+  /* ---- A mesa (barro sob a lâmpada) ---- */
+  --barro-luz: #a8492b;   /* centro iluminado */
+  --barro: #8c3a23;       /* meio-tom */
+  --barro-2: #642a19;     /* borda da mesa */
+  --barro-3: #3a170e;     /* espessura do tampo */
+
+  /* ---- Esmalte ---- */
+  --anil: #1b3f92;        /* placas de jogador, estrutura */
+  --anil-2: #132c69;      /* sombra do esmalte, texto sobre creme */
+  --anil-3: #0d1e49;
+  --anil-luz: #a9c1f5;    /* texto secundário sobre anil */
+  --gema: #f4b41f;        /* agora / ação / vale */
+  --gema-2: #b27a06;      /* espessura do botão gema */
+  --laranja: #ec7a1c;     /* vale 6 */
+  --pimenta: #ec5436;     /* alerta e "correr" sobre o escuro */
+  --carmim: #bf2a17;      /* naipes vermelhos sobre creme; placa de grito */
+  --carmim-2: #7d170b;
+
+  /* ---- Papel e giz ---- */
+  --creme: #f7efdd;       /* cartão das cartas, texto principal */
+  --giz: #ece5d6;         /* texto sobre o escuro */
+  --giz-2: #b8ae9f;       /* texto secundário */
+  --giz-3: #8f8477;       /* texto terciário, vagas */
+  --tinta: #1c1718;       /* naipes pretos, texto sobre creme e gema */
+
+  /* ---- Tipografia ---- */
+  --f-letreiro: "Sansita", "Georgia", serif;          /* 900 itálico: gritos e marca · 800: números */
+  --f-ui: "Archivo", "Helvetica Neue", Arial, sans-serif;
+
+  --t-grito: 900 italic 58px/0.9 var(--f-letreiro);
+  --t-titulo: 900 italic 34px/1 var(--f-letreiro);
+  --t-subtitulo: 900 italic 22px/1.05 var(--f-letreiro);
+  --t-chamada: 900 italic 17px/1 var(--f-letreiro);
+  --t-corpo: 500 16px/1.4 var(--f-ui);
+  --t-apoio: 500 13.5px/1.4 var(--f-ui);
+  --t-rotulo: 700 11px/1 var(--f-ui);     /* caixa alta, largura 82 %, tracking .08em */
+
+  /* ---- Forma ---- */
+  --r-carta: 0.1;         /* raio = 10 % da largura da carta */
+  --r-placa: 7px;
+  --r-campo: 10px;
+  --r-painel: 16px;
+  --toque: 44px;          /* alvo mínimo */
+
+  /* ---- Sombra: sempre curta e dura, como chapa esmaltada; nada de blur empilhado ---- */
+  --sombra-chapa: 0 2px 0 rgba(6, 10, 28, 0.55);
+  --sombra-carta: 0 1px 0 rgba(0, 0, 0, 0.28), 0 3px 6px rgba(0, 0, 0, 0.26);
+  --sombra-carta-alta: 0 2px 0 rgba(0, 0, 0, 0.3), 0 9px 14px rgba(0, 0, 0, 0.34);
+
+  /* ---- Movimento ---- */
+  --t-rapido: 120ms;      /* toques, estados */
+  --t-carta: 220ms;       /* carta batendo na mesa */
+  --t-grito-dur: 420ms;   /* placa de TRUCO entrando */
+  --e-bater: cubic-bezier(0.2, 1.4, 0.4, 1);     /* passa do ponto e assenta */
+  --e-sair: cubic-bezier(0.4, 0, 0.9, 0.4);
+  --e-padrao: cubic-bezier(0.2, 0.7, 0.2, 1);
+}

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" ><title>Truco Ímpar</title><rect width="512" height="512" rx="116" fill="#1b3f92"/>
+  <rect x="26" y="26" width="460" height="460" rx="92" fill="none" stroke="#f7efdd" stroke-opacity=".5" stroke-width="6"/>
+  <path d="M219.76 186.40L316.96 186.40L270.52 424L174.04 424" fill="#0d1e49" transform="translate(10 12)"/>
+  <g transform="translate(10 12)"><g transform="translate(322 112) rotate(24)"><rect x="-42" y="-58.8" width="84" height="117.6" rx="10.92" fill="#0d1e49"/><path d="M0 -21L16.8 0 0 21 -16.8 0z" fill="#0d1e49"/></g></g>
+  <path d="M219.76 186.40L316.96 186.40L270.52 424L174.04 424" fill="#f7efdd"/>
+  <g transform="translate(322 112) rotate(24)"><rect x="-42" y="-58.8" width="84" height="117.6" rx="10.92" fill="#f4b41f"/><path d="M0 -21L16.8 0 0 21 -16.8 0z" fill="#1c1718"/></g></svg>
