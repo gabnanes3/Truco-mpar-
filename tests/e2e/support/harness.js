@@ -1,7 +1,7 @@
 // The page the transport tests drive: the real session layer over the real PeerJS transport, with no
-// interface. It behaves like the app where it matters to the network: `?sala=CODE` enters that room on load
-// (so a reload comes back by itself), and a host puts its room code in the URL once the room is open.
-// Everything a test needs is on `window.harness`.
+// interface. It behaves like the app where it matters to the network: `?sala=CODE` enters that room on load,
+// and once in a room the URL is `?sala=CODE` and nothing else, so a reload comes back by itself with what
+// the browser has stored. Everything a test needs is on `window.harness`.
 
 import { hostRoom, joinRoom } from '../../../app/js/net/browser.js';
 import { createPeerTransport } from '../../../app/js/net/peer-transport.js';
@@ -25,7 +25,8 @@ let listener = null;
 function use(next) {
   client = next;
   next.subscribe((snapshot) => {
-    if (snapshot.connection === 'online' && snapshot.you.isHost) history.replaceState(null, '', `?sala=${snapshot.room.code}`);
+    const address = `?sala=${snapshot.room.code}`;
+    if (snapshot.connection === 'online' && location.search !== address) history.replaceState(null, '', address);
     think();
   });
 }
@@ -48,7 +49,8 @@ function act() {
   if (game === null || hand === null || you.role !== 'player') return;
   if (game.phase === 'truco' && hand.raise !== null && hand.raise.mustAnswer) client.respond(Math.random() < 0.6);
   else if (game.phase === 'play' && hand.turn === you.id) {
-    if (hand.canRaise && Math.random() < 0.25) client.raise();
+    // Few raises: hands stay cheap, so a match takes a good number of them.
+    if (hand.canRaise && Math.random() < 0.08) client.raise();
     else client.play(hand.myCards[Math.floor(Math.random() * hand.myCards.length)]);
   }
 }

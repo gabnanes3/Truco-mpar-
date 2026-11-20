@@ -288,8 +288,10 @@ class RoomListener {
     }, CHANNEL_TIMEOUT_MS);
     this.opening.set(channel, timeout);
     channel.on('open', () => {
+      // Chromium now and then announces the same channel as open twice. Handing it to the room twice would
+      // make every message arrive twice, and the second hello would throw the guest out as "replaced".
+      if (!this.opening.delete(channel)) return;
       clearTimeout(timeout);
-      this.opening.delete(channel);
       const connection = wrap(channel, () => {
         this.active.delete(connection);
         if (this.closed && this.active.size === 0) this.dropPeer();
