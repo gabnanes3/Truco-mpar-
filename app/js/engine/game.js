@@ -6,9 +6,11 @@ import { isCard, manilhaRank } from './cards.js';
 import {
   activeSeatsAfter, aliveFrom, idOrNull, liveHand, nextToPlay, pendingSeats, raiseOffer, seatOf,
 } from './queries.js';
-import { HAND_SIZE, LADDER, MAX_PLAYERS, MIN_PLAYERS, TARGET_SCORE, decideHand, roundWinner } from './rules.js';
+import {
+  DEFAULT_TARGET, HAND_SIZE, LADDER, MAX_PLAYERS, MIN_PLAYERS, TARGET_OPTIONS, decideHand, roundWinner,
+} from './rules.js';
 
-export { LADDER, MAX_PLAYERS, MIN_PLAYERS, TARGET_SCORE } from './rules.js';
+export { DEFAULT_TARGET, LADDER, MAX_PLAYERS, MIN_PLAYERS, TARGET_OPTIONS } from './rules.js';
 export { canRaise, defaultAction, pendingPlayers } from './queries.js';
 export { viewFor } from './view.js';
 export { checkInvariants } from './invariants.js';
@@ -39,7 +41,8 @@ const DECK_SIZE = 40;
 
 /**
  * @param {readonly PlayerInfo[]} players 2 to 7 players with distinct ids, in seat order
- * @param {{ dealerIndex?: number }} [opts] seat of the first dealer (default 0)
+ * @param {{ dealerIndex?: number, targetScore?: number }} [opts] seat of the first dealer (default 0) and the
+ *   points that win the match: 6, 9 or 12 (default 12)
  * @returns {MatchState} a match in phase 'deal', waiting for the first deck
  * @throws {TypeError | RangeError} when the arguments cannot make a match
  */
@@ -60,7 +63,12 @@ export function createMatch(players, opts = {}) {
   if (!Number.isInteger(dealer) || dealer < 0 || dealer >= players.length) {
     throw new RangeError('dealerIndex must be the index of a player');
   }
+  const targetScore = opts.targetScore ?? DEFAULT_TARGET;
+  if (!TARGET_OPTIONS.includes(targetScore)) {
+    throw new RangeError(`targetScore must be one of ${TARGET_OPTIONS.join(', ')}`);
+  }
   return {
+    targetScore,
     players: players.map(({ id, name }) => ({ id, name, score: 0, removed: false })),
     phase: 'deal',
     dealer,
@@ -440,7 +448,7 @@ function endHand(draft, hand, winner, reason, events) {
   if (remaining.length < MIN_PLAYERS) {
     // Checked before the score on purpose: with nobody left to play against, the reason is the abandon.
     endMatch(draft, remaining[0], 'abandon', events);
-  } else if (winner !== null && draft.players[winner].score >= TARGET_SCORE) {
+  } else if (winner !== null && draft.players[winner].score >= draft.targetScore) {
     endMatch(draft, winner, 'score', events);
   } else {
     draft.phase = 'deal';

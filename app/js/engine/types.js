@@ -23,7 +23,7 @@
 /**
  * Stable codes returned by `apply` for actions that are not valid right now.
  * @typedef {'bad-action' | 'match-over' | 'wrong-phase' | 'bad-deck' | 'unknown-player' | 'not-your-turn'
- *   | 'card-not-in-hand' | 'raise-at-max' | 'raise-twice' | 'raise-at-eleven' | 'not-in-hand' | 'own-raise'
+ *   | 'card-not-in-hand' | 'raise-at-max' | 'raise-twice' | 'raise-at-match-point' | 'not-in-hand' | 'own-raise'
  *   | 'already-answered' | 'already-removed'} ErrorCode
  */
 
@@ -117,6 +117,7 @@
  * The whole match. Plain JSON: safe to persist and to `JSON.parse(JSON.stringify(...))` at any point.
  * Never send it to a client: it contains every hidden card. Use `viewFor`.
  * @typedef {Object} MatchState
+ * @property {number} targetScore points that win the match: 6, 9 or 12
  * @property {PlayerState[]} players seats in playing order
  * @property {Phase} phase
  * @property {number} dealer seat that deals the hand in progress; in phase 'deal', the hand about to be dealt
@@ -306,6 +307,7 @@
 /**
  * What one client is allowed to know. The only engine data that may leave the host.
  * @typedef {Object} View
+ * @property {number} targetScore points that win the match: 6, 9 or 12
  * @property {Phase} phase
  * @property {ViewPlayer[]} players seats in playing order
  * @property {string | null} viewer the viewer's id when seated in this match, null for spectators

@@ -12,7 +12,8 @@ import { playMatch } from './simulator.js';
  * @type {Record<number, number>}
  */
 const RANDOM_MATCHES = { 2: 520, 3: 400, 4: 340, 5: 300, 6: 260, 7: 240 };
-const TIMEOUT_MATCHES = 4;
+const TIMEOUT_MATCHES = 6;
+const TARGETS = [6, 9, 12];
 
 /** Everything a healthy run of random matches must have gone through, for any table size. */
 const EXPECTED_SITUATIONS = [
@@ -35,7 +36,7 @@ export function simulateTable(playerCount) {
       const seen = {};
       let steps = 0;
       for (let match = 0; match < matches; match += 1) {
-        const report = playMatch({ seed: playerCount * 1_000_000 + match, playerCount });
+        const report = playMatch({ seed: playerCount * 1_000_000 + match, playerCount, targetScore: TARGETS[match % TARGETS.length] });
         assert.equal(report.state.phase, 'over');
         steps += report.steps;
         for (const [situation, times] of Object.entries(report.seen)) seen[situation] = (seen[situation] ?? 0) + times;
@@ -50,14 +51,15 @@ export function simulateTable(playerCount) {
 
     it(`${TIMEOUT_MATCHES} matches where every action is the timeout default still end, by score`, () => {
       for (let match = 0; match < TIMEOUT_MATCHES; match += 1) {
-        const report = playMatch({ seed: playerCount * 2_000_000 + match, playerCount, timeoutsOnly: true });
+        const targetScore = TARGETS[match % TARGETS.length];
+        const report = playMatch({ seed: playerCount * 2_000_000 + match, playerCount, targetScore, timeoutsOnly: true });
         const { state, seen } = report;
         assert.deepEqual(state.result?.reason, 'score');
-        // Nobody raises and nobody runs, so every hand is worth 1 and the winner stops at exactly 12.
+        // Nobody raises and nobody runs, so every hand is worth 1 and the winner stops exactly at the target.
         assert.equal(seen.trucoCalled, undefined);
         assert.equal(seen.playerLeftHand, undefined);
-        assert.equal(state.players[state.result?.winner ?? 0].score, 12);
-        assert.equal(state.players.filter((player) => player.score >= 12).length, 1);
+        assert.equal(state.players[state.result?.winner ?? 0].score, targetScore);
+        assert.equal(state.players.filter((player) => player.score >= targetScore).length, 1);
         // A hand is at most one deal plus three cards per player; ties aside, the scores add up to the hands.
         const scoringHands = state.players.reduce((sum, player) => sum + player.score, 0);
         assert.equal(seen.handEnded - (seen['hand:allTied'] ?? 0), scoringHands);

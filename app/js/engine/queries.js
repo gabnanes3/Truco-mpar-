@@ -1,7 +1,7 @@
 // Read-only questions about a match state. Nothing here changes the state.
 
 import { weakestCard } from './cards.js';
-import { TARGET_SCORE, nextValue, seatOrder } from './rules.js';
+import { nextValue, seatOrder } from './rules.js';
 
 /** @typedef {import('./types.js').MatchState} MatchState */
 /** @typedef {import('./types.js').PlayerState} PlayerState */
@@ -91,7 +91,7 @@ export function raiseOffer(state, seat) {
   const value = nextValue(live.hand.value);
   if (value === null) return 'raise-at-max';
   if (live.hand.lastRaiser === seat) return 'raise-twice';
-  if (state.players[seat].score === TARGET_SCORE - 1) return 'raise-at-eleven';
+  if (state.players[seat].score === state.targetScore - 1) return 'raise-at-match-point';
   return value;
 }
 

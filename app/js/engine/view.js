@@ -22,6 +22,7 @@ export function viewFor(state, viewerId) {
   const viewer = viewerId === null ? -1 : seatOf(state, viewerId);
   const { hand, lastHand, result } = state;
   return {
+    targetScore: state.targetScore,
     phase: state.phase,
     players: state.players.map(({ id, name, score, removed }) => ({ id, name, score, removed })),
     viewer: viewer === -1 ? null : state.players[viewer].id,

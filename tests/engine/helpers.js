@@ -159,12 +159,16 @@ export function assertHealthy(state) {
 export class Table {
   /**
    * @param {string[]} ids player ids in seat order; names are the ids in upper case
-   * @param {{ dealer?: string }} [opts] first dealer; by default the last seat, so the first seat leads
+   * @param {{ dealer?: string, targetScore?: number }} [opts] first dealer (by default the last seat, so the
+   *   first seat leads) and the match target (12 by default)
    */
   constructor(ids, opts = {}) {
     const dealerIndex = opts.dealer === undefined ? ids.length - 1 : ids.indexOf(opts.dealer);
     /** @type {MatchState} */
-    this.state = deepFreeze(createMatch(ids.map((id) => ({ id, name: id.toUpperCase() })), { dealerIndex }));
+    this.state = deepFreeze(createMatch(
+      ids.map((id) => ({ id, name: id.toUpperCase() })),
+      opts.targetScore === undefined ? { dealerIndex } : { dealerIndex, targetScore: opts.targetScore },
+    ));
     /** @type {EngineEvent[]} events produced by the last successful action */
     this.events = [];
     assertHealthy(this.state);

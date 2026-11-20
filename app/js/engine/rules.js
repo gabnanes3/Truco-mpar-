@@ -5,7 +5,11 @@ import { strength } from './cards.js';
 /** @typedef {import('./types.js').Play} Play */
 /** @typedef {import('./types.js').HandReason} HandReason */
 
-export const TARGET_SCORE = 12;
+/** Points that win a match when the host does not choose. */
+export const DEFAULT_TARGET = 12;
+
+/** Match targets the host may choose from. */
+export const TARGET_OPTIONS = Object.freeze([6, 9, 12]);
 
 /** Hand values: 1, then truco, seis, nove, doze. */
 export const LADDER = Object.freeze([1, 3, 6, 9, 12]);

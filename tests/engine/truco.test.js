@@ -82,13 +82,29 @@ describe('calling a raise', () => {
     assert.deepEqual(table.truco('a'), [{ type: 'trucoCalled', playerId: 'a', value: 9 }]);
   });
 
+  for (const targetScore of [6, 9]) {
+    it(`is not allowed one point short of a target of ${targetScore}`, () => {
+      const table = new Table(['a', 'b'], { targetScore });
+      table.setScores({ a: targetScore - 1, b: targetScore - 2 });
+      table.deal({ a: '3o 3e 4c', b: '4o 4e 5c' });
+      assert.equal(canRaise(table.state, 'a'), false);
+      assert.equal(table.hand('a').canRaise, false);
+      table.fail({ type: 'truco', playerId: 'a' }, 'raise-at-match-point');
+      table.play('a', '3o');
+      assert.equal(canRaise(table.state, 'b'), true);
+      table.truco('b');
+      table.accept('a');
+      assert.equal(table.hand().value, 3);
+    });
+  }
+
   it('is not allowed with exactly 11 points, but 10 is fine and an 11 may still accept', () => {
     const table = new Table(['a', 'b']);
     table.setScores({ a: 11, b: 10 });
     table.deal({ a: '3o 3e 4c', b: '4o 4e 5c' });
     assert.equal(canRaise(table.state, 'a'), false);
     assert.equal(table.hand('a').canRaise, false);
-    table.fail({ type: 'truco', playerId: 'a' }, 'raise-at-eleven');
+    table.fail({ type: 'truco', playerId: 'a' }, 'raise-at-match-point');
 
     table.play('a', '3o');
     assert.equal(canRaise(table.state, 'b'), true);

@@ -18,6 +18,7 @@ describe('createMatch', () => {
   it('starts waiting for the first deal, everyone at zero', () => {
     const state = createMatch([{ id: 'x1', name: 'Ana' }, { id: 'x2', name: 'Bia' }, { id: 'x3', name: 'Caio' }]);
     assert.deepEqual(state, {
+      targetScore: 12,
       players: [
         { id: 'x1', name: 'Ana', score: 0, removed: false },
         { id: 'x2', name: 'Bia', score: 0, removed: false },
@@ -38,6 +39,9 @@ describe('createMatch', () => {
     assert.equal(createMatch(somePlayers(5), { dealerIndex: 3 }).dealer, 3);
     assert.equal(createMatch(somePlayers(5), {}).dealer, 0);
     assert.equal(createMatch(somePlayers(5)).dealer, 0);
+    assert.equal(createMatch(somePlayers(5)).targetScore, 12);
+    assert.equal(createMatch(somePlayers(5), { targetScore: 6 }).targetScore, 6);
+    assert.equal(createMatch(somePlayers(5), { dealerIndex: 1, targetScore: 9 }).targetScore, 9);
   });
 
   it('accepts 2 to 7 players', () => {
@@ -62,6 +66,13 @@ describe('createMatch', () => {
     assert.throws(() => createMatch(/** @type {any} */ ([{ id: 'a' }, { id: 'b', name: 'B' }])), TypeError);
     assert.throws(() => createMatch(/** @type {any} */ ([{ id: 1, name: 'A' }, { id: 'b', name: 'B' }])), TypeError);
     assert.throws(() => createMatch(/** @type {any} */ ([null, { id: 'b', name: 'B' }])), TypeError);
+  });
+
+  it('refuses a target score that is not 6, 9 or 12', () => {
+    for (const targetScore of [0, 1, 3, 7, 11, 13, 15, -6, 6.5, NaN, /** @type {any} */ ('12'), /** @type {any} */ (null)]) {
+      if (targetScore === null) continue;
+      assert.throws(() => createMatch(somePlayers(3), { targetScore }), RangeError, `target ${String(targetScore)}`);
+    }
   });
 
   it('refuses a dealer that is not a seat', () => {
@@ -323,6 +334,45 @@ describe('end of the match', () => {
     assert.equal(table.score('a'), 11);
     assert.equal(table.state.phase, 'deal');
     assert.equal(table.view(null).result, null);
+  });
+
+  for (const targetScore of [6, 9, 12]) {
+    it(`comes at the chosen target of ${targetScore}, and not one point before`, () => {
+      const table = new Table(['a', 'b'], { targetScore });
+      assert.equal(table.state.targetScore, targetScore);
+      assert.equal(table.view('a').targetScore, targetScore);
+      assert.equal(table.view(null).targetScore, targetScore);
+      table.setScores({ a: targetScore - 2, b: targetScore - 1 });
+      table.deal(aWinsTwoRounds);
+      table.plays('a 3o', 'b 4o', 'a 3e', 'b 4e');
+      assert.equal(table.score('a'), targetScore - 1);
+      assert.equal(table.state.phase, 'deal');
+
+      table.deal({ b: '4o 4e 5c', a: '3o 3e 4c' });
+      table.plays('b 4o', 'a 3o', 'a 3e', 'b 4e');
+      assert.equal(table.score('a'), targetScore);
+      assert.equal(table.state.phase, 'over');
+      assert.deepEqual(table.view(null).result, { winner: 'a', reason: 'score' });
+    });
+  }
+
+  it('with a target of 6, a hand raised to 12 still scores 12', () => {
+    const table = new Table(['a', 'b'], { targetScore: 6 });
+    table.deal(aWinsTwoRounds);
+    table.truco('a');
+    table.accept('b');
+    table.play('a', '3o');
+    table.truco('b');
+    table.accept('a');
+    table.play('b', '4o');
+    table.truco('a');
+    table.accept('b');
+    table.play('a', '3e');
+    table.truco('b');
+    table.accept('a');
+    table.play('b', '4e');
+    assert.equal(table.score('a'), 12);
+    assert.deepEqual(table.view(null).result, { winner: 'a', reason: 'score' });
   });
 
   it('can come from a raise nobody accepted', () => {

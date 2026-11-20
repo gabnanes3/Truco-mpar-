@@ -17,6 +17,7 @@ import { dealOrder, deepFreeze, prng, shuffledDeck } from '../helpers.js';
  * @typedef {Object} MatchPlan
  * @property {number} seed
  * @property {number} playerCount
+ * @property {number} [targetScore] 6, 9 or 12 (default 12)
  * @property {boolean} [timeoutsOnly] every action is the timeout default: nobody raises, nobody is removed
  * @property {number} [maxSteps] generous bound on the number of actions (default 20000)
  */
@@ -61,7 +62,10 @@ export function playMatch(plan) {
     lazy: random() * 0.3,
   };
   const players = Array.from({ length: plan.playerCount }, (_, seat) => ({ id: `player${seat}`, name: `Jogador ${seat + 1}` }));
-  let state = createMatch(players, { dealerIndex: Math.floor(random() * plan.playerCount) });
+  let state = createMatch(players, {
+    dealerIndex: Math.floor(random() * plan.playerCount),
+    targetScore: plan.targetScore ?? 12,
+  });
   /** @type {Action[]} */
   const history = [];
   /** @type {Record<string, number>} */
@@ -89,6 +93,10 @@ export function playMatch(plan) {
     state = plan.seed % 8 === 0 ? deepFreeze(result.state) : result.state;
   }
   if (state.result === null) return fail('the match is over without a result');
+  if (state.targetScore !== (plan.targetScore ?? 12)) fail('the match target changed along the way');
+  if (state.result.reason === 'score' && state.players[state.result.winner].score < state.targetScore) {
+    fail('the match ended by score below the target');
+  }
   seen[`match:${state.result.reason}`] = 1;
   // Once the match is over nothing moves any more, not even a deal or a removal.
   /** @type {Action[]} */

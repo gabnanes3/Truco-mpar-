@@ -15,7 +15,7 @@ import { Table, assertHealthy, deepFreeze, jsonCopy, prng, shuffledDeck } from '
 const THREE = { a: '3o 3e 4c', b: '4o 4e 5c', c: '5o 5e 6c' };
 const ERROR_CODES = [
   'bad-action', 'match-over', 'wrong-phase', 'bad-deck', 'unknown-player', 'not-your-turn', 'card-not-in-hand',
-  'raise-at-max', 'raise-twice', 'raise-at-eleven', 'not-in-hand', 'own-raise', 'already-answered', 'already-removed',
+  'raise-at-max', 'raise-twice', 'raise-at-match-point', 'not-in-hand', 'own-raise', 'already-answered', 'already-removed',
 ];
 
 /**
@@ -137,7 +137,7 @@ describe('invalid actions', () => {
       }
     }
     // Some codes need a longer set-up than those situations; they have their own test below.
-    const rare = ['bad-action', 'bad-deck', 'raise-at-max', 'raise-at-eleven'];
+    const rare = ['bad-action', 'bad-deck', 'raise-at-max', 'raise-at-match-point'];
     assert.deepEqual([...seenErrors].sort(), ERROR_CODES.filter((code) => !rare.includes(code)).sort());
   });
 
@@ -169,7 +169,7 @@ describe('invalid actions', () => {
     table.accept('b', 'c');
     table.fail({ type: 'truco', playerId: 'a' }, 'raise-twice');
     table.plays('a 3o', 'b 4o');
-    table.fail({ type: 'truco', playerId: 'c' }, 'raise-at-eleven');
+    table.fail({ type: 'truco', playerId: 'c' }, 'raise-at-match-point');
     table.fail({ type: 'play', playerId: 'c', card: '3o' }, 'card-not-in-hand');
     table.play('c', '5o');
     table.fail({ type: 'play', playerId: 'a', card: '3o' }, 'card-not-in-hand');

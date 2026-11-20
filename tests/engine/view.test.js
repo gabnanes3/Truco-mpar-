@@ -7,7 +7,7 @@ import { viewFor } from '../../app/js/engine/game.js';
 import { Table, cardsIn, jsonCopy } from './helpers.js';
 
 const FOUR = { a: '3o 3e 4c', b: '4o 4e 5c', c: '5o 5e 6c', d: '6o 6e Jc' };
-const VIEW_KEYS = ['phase', 'players', 'viewer', 'dealer', 'handNumber', 'hand', 'lastHand', 'result'];
+const VIEW_KEYS = ['targetScore', 'phase', 'players', 'viewer', 'dealer', 'handNumber', 'hand', 'lastHand', 'result'];
 const HAND_KEYS = [
   'number', 'vira', 'manilha', 'value', 'nextValue', 'lastRaiser', 'turn', 'leader', 'rounds', 'plays', 'dealtIn',
   'alive', 'ran', 'cardCounts', 'myCards', 'canRaise', 'raise',
@@ -17,6 +17,7 @@ describe('viewFor', () => {
   it('before the first deal shows the players and who deals', () => {
     const table = new Table(['a', 'b', 'c'], { dealer: 'b' });
     assert.deepEqual(table.view('a'), {
+      targetScore: 12,
       phase: 'deal',
       players: [
         { id: 'a', name: 'A', score: 0, removed: false },
@@ -42,6 +43,7 @@ describe('viewFor', () => {
     table.plays('a 3o', 'b 4o', 'c 5o', 'a 3e');
 
     assert.deepEqual(table.view('b'), {
+      targetScore: 12,
       phase: 'play',
       players: [
         { id: 'a', name: 'A', score: 2, removed: false },

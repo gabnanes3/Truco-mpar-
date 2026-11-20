@@ -165,6 +165,9 @@ const BREAKAGES = [
   ['hand.stock: expected a list of cards', 'mid', (s, h) => { h.stock = 'deck'; }],
 
   // ------------------------------------------------------------------------------------------- match
+  ['targetScore: expected one of 6, 9, 12', 'fresh', (s) => { s.targetScore = 7; }],
+  ['targetScore: expected one of 6, 9, 12', 'mid', (s) => { s.targetScore = '12'; }],
+  ['players: a running match cannot have a score at the target', 'fresh', (s) => { s.targetScore = 6; s.players[1].score = 6; }],
   ['players: a match has 2 to 7 seats', 'fresh', (s) => { s.players.length = 1; s.dealer = 0; }],
   ['players: a match has 2 to 7 seats', 'fresh', (s) => { while (s.players.length < 8) s.players.push({ ...s.players[0], id: `x${s.players.length}` }); }],
   ['players: ids must be non-empty and distinct', 'fresh', (s) => { s.players[1].id = s.players[0].id; }],
@@ -249,7 +252,7 @@ const BREAKAGES = [
   ['hand.raise.value: must be the next step of the ladder', 'raise', (s, h) => { h.raise.value = 6; }],
   ['hand.raise.value: must be the next step of the ladder', 'raise', (s, h) => { h.raise.value = 1; }],
   ['hand.raise.caller: nobody raises twice in a row', 'raise', (s, h) => { h.lastRaiser = 1; h.value = 3; h.raise.value = 6; }],
-  ['hand.raise.caller: nobody raises with 11 points', 'raise', (s) => { s.players[1].score = 11; }],
+  ['hand.raise.caller: nobody raises one point short of the target', 'raise', (s) => { s.players[1].score = 11; }],
   ['hand.raise.answers: expected at most one answer per responder', 'raise', (s, h) => { h.raise.answers.push({ seat: 2, accept: false }); }],
   ['hand.raise.answers: expected at most one answer per responder', 'raise', (s, h) => { h.raise.answers.push({ seat: 1, accept: true }); }],
   ['hand.raise.answers: expected at most one answer per responder', 'short', (s, h) => { s.phase = 'truco'; h.raise = { caller: 0, value: 6, answers: [{ seat: 3, accept: false }] }; h.lastRaiser = 1; }],

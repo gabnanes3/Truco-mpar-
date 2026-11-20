@@ -3,7 +3,7 @@
 
 import { isCard, manilhaRank } from './cards.js';
 import {
-  HAND_SIZE, LADDER, MAX_PLAYERS, MIN_PLAYERS, TARGET_SCORE, decideHand, nextValue, roundWinner,
+  HAND_SIZE, LADDER, MAX_PLAYERS, MIN_PLAYERS, TARGET_OPTIONS, decideHand, nextValue, roundWinner,
 } from './rules.js';
 
 /** @typedef {import('./types.js').MatchState} MatchState */
@@ -12,9 +12,7 @@ import {
 /** @typedef {import('./types.js').OpenRound} OpenRound */
 
 const DECK_SIZE = 40;
-const MAX_SCORE = TARGET_SCORE - 1 + LADDER[LADDER.length - 1];
-
-const STATE_KEYS = ['players', 'phase', 'dealer', 'handNumber', 'hand', 'lastHand', 'result'];
+const STATE_KEYS = ['targetScore', 'players', 'phase', 'dealer', 'handNumber', 'hand', 'lastHand', 'result'];
 const PLAYER_KEYS = ['id', 'name', 'score', 'removed'];
 const HAND_KEYS = [
   'number', 'vira', 'manilha', 'value', 'lastRaiser', 'dealtIn', 'alive', 'cards', 'rounds', 'current', 'turn',
@@ -136,6 +134,9 @@ function shapeProblems(state) {
 
   /** @type {string[]} */
   const problems = [];
+  if (typeof top.targetScore !== 'number' || !TARGET_OPTIONS.includes(top.targetScore)) {
+    return [`targetScore: expected one of ${TARGET_OPTIONS.join(', ')}`];
+  }
   if (!isOneOf(top.phase, PHASES)) problems.push('phase: unknown phase');
   if (!isSeat(top.dealer, seats)) problems.push('dealer: expected a seat');
   if (!isCount(top.handNumber)) problems.push('handNumber: expected a non-negative integer');
@@ -222,7 +223,9 @@ function ruleProblems(state) {
 function matchProblems(state) {
   /** @type {string[]} */
   const problems = [];
-  const { players, phase, hand, lastHand, result } = state;
+  const { players, phase, hand, lastHand, result, targetScore } = state;
+  // The highest reachable score: one point short of the target, then a hand at the top of the ladder.
+  const maxScore = targetScore - 1 + LADDER[LADDER.length - 1];
   const active = players.filter((player) => !player.removed).length;
   const playing = phase === 'play' || phase === 'truco';
 
@@ -232,13 +235,13 @@ function matchProblems(state) {
   if (players.some((player) => player.id === '') || new Set(players.map((player) => player.id)).size !== players.length) {
     problems.push('players: ids must be non-empty and distinct');
   }
-  if (players.some((player) => player.score > MAX_SCORE)) problems.push(`players: no score can exceed ${MAX_SCORE}`);
+  if (players.some((player) => player.score > maxScore)) problems.push(`players: no score can exceed ${maxScore}`);
 
   if ((phase === 'over') !== (result !== null)) {
     problems.push('result: must be set exactly when the match is over');
   } else if (result === null) {
     if (active < MIN_PLAYERS) problems.push('players: a running match needs 2 players who were not removed');
-    if (players.some((player) => player.score >= TARGET_SCORE)) {
+    if (players.some((player) => player.score >= targetScore)) {
       problems.push('players: a running match cannot have a score at the target');
     }
   } else if (result.reason === 'abandon') {
@@ -247,7 +250,7 @@ function matchProblems(state) {
     }
   } else {
     if (active < MIN_PLAYERS) problems.push('result: with a single player left the reason must be abandon');
-    if (players.some((player, seat) => (player.score >= TARGET_SCORE) !== (seat === result.winner))) {
+    if (players.some((player, seat) => (player.score >= targetScore) !== (seat === result.winner))) {
       problems.push('result: the winner, and nobody else, must have reached the target score');
     }
     if (lastHand === null || lastHand.winner !== result.winner) {
@@ -420,8 +423,8 @@ function raiseProblems(state, hand, raise) {
   if (raise.caller !== hand.turn) problems.push('hand.raise.caller: must be the player whose turn it is');
   if (raise.value !== nextValue(hand.value)) problems.push('hand.raise.value: must be the next step of the ladder');
   if (raise.caller === hand.lastRaiser) problems.push('hand.raise.caller: nobody raises twice in a row');
-  if (state.players[raise.caller].score === TARGET_SCORE - 1) {
-    problems.push('hand.raise.caller: nobody raises with 11 points');
+  if (state.players[raise.caller].score === state.targetScore - 1) {
+    problems.push('hand.raise.caller: nobody raises one point short of the target');
   }
   if (new Set(answered).size !== answered.length || answered.includes(raise.caller)
     || !answered.every((seat) => dealtIn.includes(seat))) {

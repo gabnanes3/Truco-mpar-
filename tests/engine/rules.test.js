@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { LADDER, MAX_PLAYERS, MIN_PLAYERS, TARGET_SCORE } from '../../app/js/engine/game.js';
+import { DEFAULT_TARGET, LADDER, MAX_PLAYERS, MIN_PLAYERS, TARGET_OPTIONS } from '../../app/js/engine/game.js';
 import { HAND_SIZE, decideHand, nextValue, roundWinner, seatOrder } from '../../app/js/engine/rules.js';
 
 /** @typedef {import('../../app/js/engine/types.js').Play} Play */
@@ -18,7 +18,8 @@ function plays(...text) {
 
 describe('constants', () => {
   it('match the rules of the game', () => {
-    assert.equal(TARGET_SCORE, 12);
+    assert.equal(DEFAULT_TARGET, 12);
+    assert.deepEqual([...TARGET_OPTIONS], [6, 9, 12]);
     assert.deepEqual([...LADDER], [1, 3, 6, 9, 12]);
     assert.equal(MIN_PLAYERS, 2);
     assert.equal(MAX_PLAYERS, 7);
