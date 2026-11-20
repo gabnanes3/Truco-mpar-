@@ -31,6 +31,24 @@ A smaller flawless game beats a feature-rich one that hangs mid-match.
 > 5. **Automatic sound effects** for game events are in the first version — see section 5.
 > If you are implementing or reviewing code written against revision 1, treat any difference as work to do.
 
+> **Revision 3 (owner decision — usage budget is almost exhausted; this overrides the task prompt wherever
+> they conflict).** Applies to any stage that has not yet built the home / lobby / end screens (the final
+> "fluxo" stage). Deliver a complete, good-looking, working game with the least possible work:
+> 1. **Publish early.** As soon as create room → join by link → play a full match → end screen works end to
+>    end in the real UI, add the README and `.github/workflows/deploy.yml`, commit and push (that puts the game
+>    online). Then continue with sounds, taunts and the remaining items in further commits.
+> 2. **Cut:** PNG icon rendering and the 1200×630 Open Graph image (keep an SVG favicon and plain
+>    title / description / og:title / og:description tags; a minimal web manifest is fine); elaborate error
+>    screens (one simple screen with a message per error code is enough); the 5-player and host-reload UI
+>    tests (already covered at transport level); desktop-specific polish beyond "not broken"; more than one
+>    round of screenshot iteration.
+> 3. **Keep:** the "Mesa Acesa" look on home, lobby, table and end; target selector 6 / 9 / 12; copy link and
+>    share; reconnection on reload; a handful of synthesized sound effects with a mute toggle; taunts; a short
+>    "como se joga" text; ONE UI end-to-end test (three players through the real UI to the end screen,
+>    including one guest reload) plus the "room not found" case.
+> 4. **Work economically:** read only the files you need, do not re-run long test suites more than necessary,
+>    no exploratory detours, no refactors of code that already works.
+
 ## 1. Stack and layout
 
 Static site, native ES modules, **no bundler, no build step**. `app/` is deployed as-is to GitHub Pages at
