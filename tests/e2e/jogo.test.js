@@ -213,12 +213,27 @@ async function playToTheEnd(all, random, between) {
 }
 
 /**
+ * A card this guest has just tapped stays on screen until the host's answer arrives, so the seat is read
+ * until two readings in a row agree.
+ * @param {Device} guest
+ */
+async function settledSeat(guest) {
+  let previous = await seatOf(guest);
+  for (;;) {
+    await delay(250);
+    const current = await seatOf(guest);
+    if (JSON.stringify(current) === JSON.stringify(previous)) return current;
+    previous = current;
+  }
+}
+
+/**
  * Reloads a guest's page in the middle of a hand: same seat, same cards, straight back to the table.
  * @param {Device} guest
  * @returns {Promise<boolean>} false when that guest holds no cards right now (nothing to compare)
  */
 async function reloadGuest(guest) {
-  const seat = await seatOf(guest);
+  const seat = await settledSeat(guest);
   if (seat.cards.length === 0) return false;
   await guest.page.reload();
   await guest.page.waitForSelector(TABLE, { timeout: WAIT_MS });
